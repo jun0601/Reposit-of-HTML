@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Endpoint Service Lab - CloudNeta Web Server 1</title>
+  <meta name="description" content="Simple demo page for Interface/Gateway Endpoint labs" />
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #111827;
+      --accent: #22d3ee;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --ring: rgba(34, 211, 238, 0.35);
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color: var(--text);
+      background: radial-gradient(1200px 600px at 10% -10%, #1f2937 0%, transparent 60%),
+                  radial-gradient(1200px 600px at 110% 10%, #0ea5e9 0%, transparent 55%),
+                  linear-gradient(180deg, #020617 0%, #0b1220 100%);
+    }
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 32px 20px 80px;
+    }
+    header {
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      padding: 18px 20px; margin: 22px 0 28px; border: 1px solid #1f2937; border-radius: 16px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+      backdrop-filter: blur(3px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    }
+    h1 { font-size: clamp(20px, 3vw, 28px); margin: 0; letter-spacing: .2px; }
+    .badge {
+      border: 1px solid rgba(255,255,255,0.15);
+      color: #0ea5e9; background: rgba(14,165,233,0.08);
+      padding: 6px 10px; border-radius: 999px; font-weight: 600; font-size: 13px;
+    }
+    main { display: grid; gap: 18px; }
+    .card {
+      background: var(--card);
+      border: 1px solid #1f2937; border-radius: 18px; padding: 18px 18px 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    }
+    .card h2 { margin: 4px 2px 12px; font-size: 18px; }
+    .muted { color: var(--muted); }
+    .grid {
+      display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(230px,1fr));
+    }
+    .item { border: 1px dashed #263044; border-radius: 12px; padding: 12px 14px; }
+    .item span { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    pre {
+      margin: 10px 0 0; padding: 12px 14px; background: #0b1220; border-radius: 12px; overflow-x: auto;
+      border: 1px solid #1f2937;
+    }
+    .row { display:flex; align-items:center; gap: 10px; flex-wrap: wrap; }
+    button {
+      appearance: none; cursor: pointer; border: 1px solid rgba(255,255,255,0.15);
+      background: linear-gradient(180deg, rgba(34,211,238,0.15), rgba(34,211,238,0.08));
+      color: var(--text); padding: 10px 14px; border-radius: 12px; font-weight: 600;
+      transition: transform .05s ease, box-shadow .2s ease, border-color .2s ease;
+      box-shadow: 0 4px 18px var(--ring);
+    }
+    button:hover { border-color: rgba(34,211,238,0.6); box-shadow: 0 6px 22px var(--ring); }
+    button:active { transform: translateY(1px); }
+    .hint { color: var(--muted); font-size: 13px; margin: 8px 2px 0; }
+    footer { text-align: center; color: var(--muted); font-size: 13px; margin-top: 10px; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .chips { display:flex; gap:8px; flex-wrap: wrap; margin-top: 8px; }
+    .chip { padding: 6px 10px; border-radius: 999px; border:1px solid #243045; background:#0c1424; font-size:12px; color:#cbd5e1; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Endpoint Service Lab - CloudNeta Web Server 1</h1>
+      <div class="badge">🛜 PrivateLink / Endpoint Demo</div>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2>🔗 엔드포인트 체크 (클라이언트 관점)</h2>
+        <p class="muted">브라우저에서 인식한 접속 정보를 표시합니다. 인터페이스 엔드포인트(PrivateLink)의 <em>Private DNS</em>가 활성화돼 있다면 서비스 도메인이 사설 IP로 해석됩니다.</p>
+        <div class="grid" role="list">
+          <div class="item" role="listitem"><span>호스트명</span><code id="hostname">—</code></div>
+          <div class="item" role="listitem"><span>도메인(호스트:포트)</span><code id="host">—</code></div>
+          <div class="item" role="listitem"><span>프로토콜</span><code id="protocol">—</code></div>
+          <div class="item" role="listitem"><span>현재 시각</span><code id="now">—</code></div>
+        </div>
+        <div class="row" style="margin-top:12px;">
+          <button id="copyCurl">📋 cURL 테스트 명령 복사</button>
+          <div id="copyMsg" class="muted" aria-live="polite"></div>
+        </div>
+        <pre id="curl">curl -sS -o /dev/null -w "%{http_code}\n" https://<span id="curlHost">example.com</span>/</pre>
+        <p class="hint">💡 서버에 <code>/health</code> 엔드포인트가 있다면 <code>/</code> 대신 <code>/health</code>로 변경해 확인하세요.</p>
+        <div class="chips">
+          <div class="chip">🔐 HTTPS : 443</div>
+          <div class="chip">🧭 Region-agnostic</div>
+          <div class="chip">🏷️ Private DNS 권장</div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>🧭 안내</h2>
+        <ul>
+          <li>이 페이지는 엔드포인트 랩을 위한 간단한 데모용 정적 페이지입니다.</li>
+          <li>Interface Endpoint(PrivateLink)를 사용할 때는 엔드포인트 SG 인바운드로 <strong>TCP 443</strong>을, 소스는 <strong>클라이언트 SG</strong>로 제한하는 것이 권장됩니다.</li>
+          <li>Gateway Endpoint(S3/DynamoDB)는 라우팅 기반으로 동작하며 SG가 필요 없습니다.</li>
+        </ul>
+      </section>
+
+      <footer>
+        © <span id="year"></span> CloudNeta Lab · Build once, run anywhere ✨
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      const $ = (id) => document.getElementById(id);
+      const { hostname, host, protocol } = window.location;
+      $("hostname").textContent = hostname || "localhost";
+      $("host").textContent = host || `${hostname || "localhost"}:80`;
+      $("protocol").textContent = protocol.replace(":", "").toUpperCase();
+      $("curlHost").textContent = host || (hostname || "localhost");
+      const tick = () => { $("now").textContent = new Date().toLocaleString(); };
+      tick();
+      setInterval(tick, 1000);
+      $("year").textContent = new Date().getFullYear();
+
+      const copy = () => {
+        const pre = document.getElementById("curl");
+        // Extract visible text from the <pre> (strip tags inside)
+        const tmp = pre.cloneNode(true);
+        tmp.querySelectorAll("span").forEach(s => s.replaceWith(s.textContent));
+        const text = tmp.textContent.trim();
+        navigator.clipboard.writeText(text).then(() => {
+          $("copyMsg").textContent = "복사되었습니다! 터미널에서 붙여넣어 테스트하세요.";
+          setTimeout(() => $("copyMsg").textContent = "", 2200);
+        }).catch(() => {
+          $("copyMsg").textContent = "복사에 실패했습니다. 수동으로 드래그 선택해 주세요.";
+          setTimeout(() => $("copyMsg").textContent = "", 2200);
+        });
+      };
+      $("copyCurl").addEventListener("click", copy);
+    })();
+  </script>
+</body>
+</html>

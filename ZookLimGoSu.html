@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>네온 갤럭시: 에볼루션</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #030308;
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            overflow: hidden;
+            transition: background-color 0.1s ease; /* 레벨업 플래시용 */
+        }
+        #gameContainer { position: relative; }
+        #ui {
+            position: absolute;
+            top: -70px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            z-index: 10;
+        }
+        .info-group { display: flex; flex-direction: column; align-items: center; }
+        .label { font-size: 10px; color: #8a2be2; letter-spacing: 2px; font-weight: bold; margin-bottom: 2px; }
+        .value { font-size: 22px; color: #00ffcc; font-weight: 900; text-shadow: 0 0 10px #00ffcc; }
+        #lives { color: #ff4444; font-size: 24px; padding-bottom: 2px; }
+        
+        #leaderboard {
+            position: absolute;
+            right: -240px;
+            top: 0;
+            width: 200px;
+            background: rgba(10, 10, 20, 0.9);
+            padding: 15px;
+            border-radius: 12px;
+            border: 2px solid #8a2be2;
+            box-shadow: 0 0 20px rgba(138, 43, 226, 0.5);
+            transition: border-color 0.5s ease;
+        }
+        #leaderboard h3 { margin: 0 0 10px 0; font-size: 15px; color: #ffcc00; text-align: center; border-bottom: 1px solid #333; padding-bottom: 5px; }
+        .rank-item { display: flex; justify-content: space-between; margin-bottom: 8px; font-family: 'Courier New', monospace; font-size: 14px; }
+        
+        canvas {
+            background: radial-gradient(circle at center, #0a0515 0%, #000 85%);
+            border-radius: 50%;
+            box-shadow: 0 0 40px rgba(138, 43, 226, 0.3);
+            transition: box-shadow 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <div id="ui">
+            <div class="info-group">
+                <span class="label">STAGE</span>
+                <span id="stageValue" class="value">1</span>
+            </div>
+            <div class="info-group">
+                <span class="label">SCORE</span>
+                <span id="scoreValue" class="value">0</span>
+            </div>
+            <div id="lives">❤️❤️❤️</div>
+        </div>
+        
+        <canvas id="gameCanvas"></canvas>
+
+        <div id="leaderboard">
+            <h3>🏆 TOP 5 RECORDS</h3>
+            <div id="rankList"></div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreUI = document.getElementById('scoreValue');
+        const stageUI = document.getElementById('stageValue');
+        const livesUI = document.getElementById('lives');
+        const rankListUI = document.getElementById('rankList');
+        const leaderboardUI = document.getElementById('leaderboard');
+
+        const CANVAS_SIZE = 700;
+        const CENTER = CANVAS_SIZE / 2;
+        const ARENA_RADIUS = 310; 
+        
+        canvas.width = CANVAS_SIZE;
+        canvas.height = CANVAS_SIZE;
+
+        // 스테이지별 테마 색상 정의 (업데이트 2)
+        const stageThemes = [
+            '#8a2be2', // Stage 1: 퍼플
+            '#00ffcc', // Stage 2: 시안
+            '#00ff00', // Stage 3: 그린
+            '#ffcc00', // Stage 4: 옐로우
+            '#ff4444', // Stage 5+: 레드
+        ];
+
+        let player = { 
+            x: CENTER, y: CENTER, radius: 10, speed: 7, angle: 0, 
+            isInvincible: false, invincFrames: 0,
+            baseColor: '#00ffcc', glowColor: '#00ffcc',
+            trail: [] 
+        };
+        let enemies = [];
+        let stars = [];
+        let score = 0;
+        let lives = 3;
+        let keys = {};
+        let frame = 0;
+        let gameOver = false;
+        let currentStage = 1;
+        let currentArenaColor = stageThemes[0];
+
+        for(let i=0; i<60; i++) {
+            stars.push({ x: Math.random()*CANVAS_SIZE, y: Math.random()*CANVAS_SIZE, size: Math.random()*2, opacity: Math.random() });
+        }
+
+        window.addEventListener('keydown', e => keys[e.code] = true);
+        window.addEventListener('keyup', e => keys[e.code] = false);
+
+        function saveScore(finalScore) {
+            let ranks = JSON.parse(localStorage.getItem('neon_final_ranks') || '[]');
+            ranks.push(Math.floor(finalScore));
+            ranks.sort((a, b) => b - a);
+            ranks = ranks.slice(0, 5);
+            localStorage.setItem('neon_final_ranks', JSON.stringify(ranks));
+            displayRanks();
+        }
+
+        function displayRanks() {
+            const ranks = JSON.parse(localStorage.getItem('neon_final_ranks') || '[]');
+            rankListUI.innerHTML = ranks.map((s, i) => `
+                <div class="rank-item"><span>${i+1}.</span><span>${s.toLocaleString()}</span></div>
+            `).join('') || '<div style="text-align:center;font-size:12px;color:#555;">No Data</div>';
+        }
+
+        function spawnEnemy() {
+            if (gameOver) return;
+            const angle = Math.random() * Math.PI * 2;
+            const dist = ARENA_RADIUS + 40;
+            const speed = 3.5 + Math.random() * 3 + (currentStage * 0.5);
+
+            // 업데이트 1: 장애물 크기 진짜 살짝 키움 (기존 6~14 -> 7~16)
+            enemies.push({
+                x: CENTER + Math.cos(angle) * dist,
+                y: CENTER + Math.sin(angle) * dist,
+                vx: -Math.cos(angle + (Math.random()-0.5)*0.5) * speed,
+                vy: -Math.sin(angle + (Math.random()-0.5)*0.5) * speed,
+                size: 7 + Math.random() * 9, 
+                color: currentStage % 2 === 0 ? '#ff00ff' : '#00ffcc',
+                rotation: 0, rotSpeed: (Math.random() - 0.5) * 0.1
+            });
+        }
+
+        function drawShipPath(ctx, radius) {
+            ctx.beginPath();
+            ctx.moveTo(radius, 0); 
+            ctx.lineTo(-radius, -radius * 0.8);
+            ctx.lineTo(-radius * 0.4, 0); 
+            ctx.lineTo(-radius, radius * 0.8);
+            ctx.closePath();
+        }
+
+        // 업데이트 3: 레벨업 이펙트 (Flash)
+        function triggerLevelUpEffect(color) {
+            document.body.style.backgroundColor = color; // 화면 번쩍
+            setTimeout(() => {
+                document.body.style.backgroundColor = '#030308'; // 원래대로
+            }, 50); // 아주 짧게
+        }
+
+        function update() {
+            if (gameOver) return;
+            frame++;
+
+            // 스테이지 계산 및 테마 업데이트 (업데이트 2)
+            let newStage = Math.floor(score / 500) + 1;
+            if (newStage !== currentStage) {
+                currentStage = newStage;
+                // 스테이지 색상 결정 (5단계 이후는 계속 레드)
+                currentArenaColor = stageThemes[Math.min(currentStage - 1, stageThemes.length - 1)];
+                stageUI.innerText = currentStage;
+                
+                // UI 요소 색상 동기화
+                leaderboardUI.style.borderColor = currentArenaColor;
+                canvas.style.boxShadow = `0 0 40px ${currentArenaColor}4d`; // 30% 투명도
+
+                // 레벨업 이펙트 실행
+                triggerLevelUpEffect(currentArenaColor);
+            }
+
+            if (frame % Math.max(8, 40 - Math.floor(score/150)) === 0) spawnEnemy();
+
+            let dx = 0, dy = 0;
+            if (keys['ArrowUp'] || keys['KeyW']) dy -= player.speed;
+            if (keys['ArrowDown'] || keys['KeyS']) dy += player.speed;
+            if (keys['ArrowLeft'] || keys['KeyA']) dx -= player.speed;
+            if (keys['ArrowRight'] || keys['KeyD']) dx += player.speed;
+            if (dx !== 0 || dy !== 0) player.angle = Math.atan2(dy, dx);
+            player.x += dx; player.y += dy;
+
+            player.trail.push({ x: player.x, y: player.y, angle: player.angle });
+            if (player.trail.length > 6) player.trail.shift();
+
+            const dist = Math.sqrt((player.x-CENTER)**2 + (player.y-CENTER)**2);
+            if (dist + player.radius > ARENA_RADIUS) {
+                const a = Math.atan2(player.y-CENTER, player.x-CENTER);
+                player.x = CENTER + Math.cos(a) * (ARENA_RADIUS - player.radius);
+                player.y = CENTER + Math.sin(a) * (ARENA_RADIUS - player.radius);
+            }
+
+            if (player.isInvincible) {
+                player.invincFrames--;
+                if (player.invincFrames <= 0) player.isInvincible = false;
+                player.baseColor = '#ffffff'; player.glowColor = '#ffffff';
+            } else {
+                if (lives === 3) { player.baseColor = '#00ffcc'; player.glowColor = '#00ffcc'; }
+                else if (lives === 2) { player.baseColor = '#ffcc00'; player.glowColor = '#ffcc00'; }
+                else { player.baseColor = '#ff4444'; player.glowColor = '#ff4444'; }
+            }
+
+            enemies.forEach((en, i) => {
+                en.x += en.vx; en.y += en.vy; en.rotation += en.rotSpeed;
+                const d = Math.sqrt((player.x-en.x)**2 + (player.y-en.y)**2);
+                if (!player.isInvincible && d < player.radius + en.size - 3) {
+                    lives--;
+                    livesUI.innerText = '❤️'.repeat(lives) + '🖤'.repeat(3-lives);
+                    if (lives <= 0) {
+                        gameOver = true;
+                        saveScore(score);
+                        setTimeout(() => { alert(`GAME OVER!\nSTAGE: ${currentStage}\nSCORE: ${Math.floor(score)}`); location.reload(); }, 100);
+                    } else {
+                        player.isInvincible = true; player.invincFrames = 100;
+                        player.x = CENTER; player.y = CENTER; player.trail = []; enemies = [];
+                    }
+                }
+                if (Math.abs(en.x - CENTER) > 550) enemies.splice(i, 1);
+            });
+
+            score += 0.5;
+            scoreUI.innerText = Math.floor(score).toLocaleString();
+        }
+
+        function draw() {
+            ctx.fillStyle = '#030308'; // 약간 더 어둡게
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            stars.forEach(s => { ctx.fillStyle = `rgba(255, 255, 255, ${s.opacity})`; ctx.fillRect(s.x, s.y, s.size, s.size); });
+
+            // 업데이트 2: 경기장 원 색상을 STAGE 색상으로 그리기
+            ctx.beginPath(); ctx.arc(CENTER, CENTER, ARENA_RADIUS, 0, Math.PI*2);
+            ctx.strokeStyle = currentArenaColor; ctx.lineWidth = 4; ctx.shadowBlur = 15; ctx.shadowColor = currentArenaColor;
+            ctx.stroke(); ctx.shadowBlur = 0;
+
+            enemies.forEach(en => {
+                ctx.save(); ctx.translate(en.x, en.y); ctx.rotate(en.rotation);
+                ctx.strokeStyle = en.color; ctx.lineWidth = 2; ctx.shadowBlur = 10; ctx.shadowColor = en.color;
+                ctx.strokeRect(-en.size, -en.size, en.size*2, en.size*2);
+                ctx.restore();
+            });
+
+            if (!player.isInvincible || frame % 10 < 5) {
+                player.trail.forEach((t, i) => {
+                    ctx.save(); ctx.translate(t.x, t.y); ctx.rotate(t.angle);
+                    drawShipPath(ctx, player.radius);
+                    ctx.fillStyle = player.baseColor; ctx.globalAlpha = (i + 1) / 15;
+                    ctx.shadowBlur = 5; ctx.shadowColor = player.glowColor; ctx.fill();
+                    ctx.restore();
+                });
+                ctx.globalAlpha = 1; ctx.save(); ctx.translate(player.x, player.y); ctx.rotate(player.angle);
+                drawShipPath(ctx, player.radius);
+                ctx.fillStyle = player.baseColor; ctx.shadowBlur = 15; ctx.shadowColor = player.glowColor; ctx.fill();
+                ctx.restore();
+            }
+            requestAnimationFrame(() => { update(); draw(); });
+        }
+        displayRanks(); draw();
+    </script>
+</body>
+</html>
