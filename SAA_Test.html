@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>AWS SAA 모의고사 마스터</title>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center; /* [추가] 수직 중앙 정렬 */
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .main-wrapper {
+            width: 1500px; /* 가로폭 살짝 확장 */
+            display: flex;
+            gap: 20px;
+            height: 90vh; /* [수정] 화면 높이의 90%만 사용 (상하 5%씩 여백 발생) */
+            max-height: 950px; /* 너무 커지는 것 방지 */
+            padding: 20px 0; /* 내부 여백 살짝 추가 */
+            box-sizing: border-box;
+        }
+
+        .quiz-container {
+            flex: 1.5;
+            background-color: #2d2d2d;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+        }
+
+        #quiz-content {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 15px;
+            margin-bottom: 20px;
+        }
+
+        h1 { border-bottom: 2px solid #4a4a4a; padding-bottom: 10px; margin-top: 0; font-size: 1.4rem; color: #fff; }
+        .question { font-size: 1.2rem; margin-bottom: 25px; font-weight: bold; line-height: 1.5; }
+        .options { list-style: none; padding: 0; }
+        .option-item {
+            background: #3d3d3d;
+            margin-bottom: 12px;
+            padding: 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 1px solid transparent;
+        }
+        .option-item:hover { background: #4a4a4a; border-color: #666; }
+        
+        /* 다중 선택 시 파란색으로 표시 */
+        .option-item.selected { background: #0056b3; border: 1px solid #007bff; }
+        
+        /* 정답 및 오답 알림창 스타일 수정 */
+        #result { 
+            margin-top: 30px; 
+            padding: 20px; 
+            border-radius: 8px; /* 조금 더 부드러운 곡선 */
+            display: none; 
+            line-height: 1.6;
+            transition: all 0.3s ease; /* 나타날 때 부드럽게 */
+        }
+
+        /* 정답: 차분한 파스텔 그린 */
+        .correct { 
+            background-color: #2e3c31; /* 진한 파스텔 그린 배경 */
+            border: 1px solid #72a376; /* 부드러운 초록색 테두리 */
+            color: #d4edda; 
+        }
+
+        /* 오답: 차분한 파스텔 레드/로즈 */
+        .wrong { 
+            background-color: #3c2e2e; /* 진한 파스텔 로즈 배경 */
+            border: 1px solid #a37272; /* 부드러운 붉은색 테두리 */
+            color: #f8d7da; 
+        }
+
+        /* 해설 텍스트 가독성 향상 */
+        .explanation { 
+            margin-top: 15px; 
+            padding-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.95rem; 
+            color: #cccccc; /* 해설은 살짝 톤다운하여 눈의 피로 감소 */
+            white-space: pre-wrap;
+        }
+
+        .sidebar {
+            flex: 0.6;
+            background-color: #2d2d2d;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+        }
+        .search-box { margin-bottom: 15px; }
+        #q-search {
+            width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #444;
+            background-color: #1a1a1a; color: white; box-sizing: border-box;
+        }
+        .question-list {
+            flex: 1;
+            overflow-y: auto;
+            border-top: 1px solid #444;
+            padding-top: 10px;
+            display: flex;       /* 추가 */
+            flex-direction: column; /* 추가: 아이템들이 수직으로 쌓이도록 함 */
+        }
+        /* 리스트 아이템을 감싸는 컨테이너 */
+        .q-row-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 8px;
+        }
+        /* 문제 이동 버튼 (기존 q-row-btn 수정) */
+        .q-row-btn {
+            flex: 1; /* 가로 공간 꽉 채우기 */
+            background: #3d3d3d; border: none; color: #ccc;
+            padding: 12px 15px; border-radius: 4px;
+            cursor: pointer; text-align: left; transition: 0.2s;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .q-row-btn:hover { background: #4a4a4a; color: #fff; }
+        .q-row-btn.active { background: #007bff; color: white; font-weight: bold; }
+
+        .nav-buttons { display: flex; justify-content: space-between; gap: 10px; border-top: 1px solid #444; padding-top: 20px; }
+        .nav-btn {
+            background-color: #007bff; color: white; border: none;
+            padding: 12px 25px; border-radius: 4px; cursor: pointer; font-size: 1rem; flex: 1;
+        }
+        .nav-btn:disabled { background-color: #555; cursor: not-allowed; }
+        #check-btn { background-color: #6c757d; }
+
+        /* 오답 필터 버튼 스타일 */
+        .filter-container {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        .filter-btn {
+            flex: 1;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #444;
+            background: #3d3d3d;
+            color: #ccc;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        .filter-btn.active {
+            background: #a37272; /* 오답노트 느낌의 파스텔 레드 */
+            color: white;
+            border-color: #f44336;
+        }
+        /* 사이드바 개별 삭제 버튼 */
+        .side-del-btn {
+            background: #a37272; color: white; border: none;
+            width: 35px; height: 40px; border-radius: 4px;
+            cursor: pointer; font-weight: bold; transition: 0.2s;
+            display: none; /* 기본적으론 숨김 (오답모드에서만 표시) */
+        }
+        .side-del-btn:hover { background: #b71c1c; }
+        /* 왼쪽 서비스 필터 사이드바 */
+        .service-sidebar {
+            flex: 0.4;
+            background-color: #2d2d2d;
+            border-radius: 12px; /* 이전 수정사항 반영 */
+            padding: 0; /* 내부 여백을 하위 요소로 분산 */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column; /* 세로로 배치 */
+            overflow: hidden; /* 사이드바 자체 스크롤은 방지 */
+        }
+
+        .service-title {
+            font-size: 1rem;
+            font-weight: bold;
+            padding: 20px 15px 10px 15px; /* 내부 여백 조절 */
+            margin-bottom: 0;
+            border-bottom: 1px solid #444;
+            background-color: #2d2d2d; /* 배경색을 주어 아래 목록이 겹쳐 보이지 않게 함 */
+            z-index: 10;
+        }
+
+        /* 필터 버튼들이 담긴 목록 영역만 스크롤되도록 설정 */
+        #service-list-container { 
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        /* All Services 버튼 포함 전체 리스트 영역 */
+        .service-scroll-area {
+            padding: 15px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .service-btn {
+            width: 100%;
+            background: #3d3d3d;
+            border: 1px solid transparent;
+            color: #bbb;
+            padding: 10px;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 0.85rem;
+            transition: 0.2s;
+        }
+
+        .service-btn:hover { background: #4a4a4a; color: white; }
+        .service-btn.active { background: #007bff; color: white; border-color: #007bff; } /* AWS 상징색 */
+
+        /* 해설 링크 스타일 */
+        .ref-link {
+            display: inline-block;
+            margin-top: 10px;
+            color: #3498db;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .ref-link:hover { text-decoration: underline; }
+        /* 스크롤바 전체 디자인 */
+        ::-webkit-scrollbar {
+            width: 8px;  /* 세로 스크롤바 두께 */
+            height: 8px; /* 가로 스크롤바 두께 */
+        }
+
+        /* 스크롤바 트랙 (바탕) */
+        ::-webkit-scrollbar-track {
+            background: #1a1a1a; 
+            border-radius: 10px;
+        }
+
+        /* 스크롤바 핸들 (움직이는 부분) */
+        ::-webkit-scrollbar-thumb {
+            background: #4a4a4a; /* 기본 핸들 색상 */
+            border-radius: 10px;
+            border: 2px solid #1a1a1a; /* 트랙과 구분감을 주기 위한 여백 */
+        }
+
+        /* 스크롤바 핸들 마우스 오버 시 */
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ff9900; /* AWS 오렌지색으로 포인트 */
+        }
+
+    /* 특정 영역(사이드바)에만 더 얇게 적용하고 싶을 때 */
+    .question-list::-webkit-scrollbar,
+    .service-sidebar::-webkit-scrollbar {
+        width: 6px;
+    }
+    </style>
+</head>
+<body>
+
+<div class="main-wrapper">
+    <div class="service-sidebar" id="service-sidebar">
+        <div class="service-title">AWS Service Filtering</div>
+        
+        <div class="service-scroll-area">
+            <button class="service-btn active" onclick="filterByService('All')">All Services</button>
+            <div id="service-list"></div>
+        </div>
+    </div>
+    <div class="quiz-container">
+        <h1>AWS SAA-C03 Exam Simulator</h1>
+        
+        <div id="quiz-content">
+            <div id="question-area">
+                <p>데이터 로딩 중...</p>
+            </div>
+
+            <div id="result">
+                <div id="result-text" style="font-size: 1.1rem; font-weight: bold;"></div>
+                <div id="explanation-text" class="explanation"></div>
+            </div>
+        </div>
+
+        <div class="nav-buttons">
+            <button id="prev-btn" class="nav-btn" onclick="changeQuestion(-1)" disabled>이전 문제</button>
+            <button id="check-btn" class="nav-btn" onclick="checkAnswer()">정답 확인</button>
+            <button id="next-btn" class="nav-btn" onclick="changeQuestion(1)">다음 문제</button>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <div class="search-box">
+            <input type="text" id="q-search" placeholder="문제 번호 검색..." onkeyup="filterQuestions()">
+        </div>
+        <div class="filter-container">
+            <button id="all-view-btn" class="filter-btn active" onclick="setFilter('all')">전체 문제</button>
+            <button id="wrong-view-btn" class="filter-btn" onclick="setFilter('wrong')">오답 노트 (0)</button>
+        </div>
+        <div id="question-list" class="question-list"></div>
+    </div>
+</div>
+
+<script>
+    let quizData = [];
+    let originalData = []; // 전체 데이터를 보관할 변수 추가
+    let currentIdx = 0;
+    let selectedOptions = new Set();
+    let filterMode = 'all'; // 현재 필터 상태
+    let currentService = 'All';
+
+    fetch('1_944.json')
+        .then(response => response.json())
+        .then(data => {
+            originalData = data;
+            quizData = data;
+            createServiceButtons();
+            updateWrongCount(); // 오답 개수 표시 업데이트
+            renderList();
+            renderQuestion();
+        });
+
+    function createServiceButtons() {
+        const serviceList = document.getElementById('service-list');
+        // 중복 제거된 서비스 목록 추출
+        const services = [...new Set(originalData.map(q => q.aws_service))].filter(Boolean).sort();
+        
+        services.forEach(svc => {
+            const btn = document.createElement('button');
+            btn.className = 'service-btn';
+            btn.innerText = svc;
+            btn.onclick = () => filterByService(svc);
+            btn.id = `svc-${svc}`;
+            serviceList.appendChild(btn);
+        });
+    }
+
+    // 오답 저장 함수
+    function saveToWrongNotes(questionId) {
+        let wrongNotes = JSON.parse(localStorage.getItem('saa_wrong_notes') || "[]");
+        if (!wrongNotes.includes(questionId)) {
+            wrongNotes.push(questionId);
+            localStorage.setItem('saa_wrong_notes', JSON.stringify(wrongNotes));
+            updateWrongCount();
+        }
+    }
+
+    function filterByService(svc) {
+        currentService = svc;
+        
+        // 버튼 활성화 상태 변경
+        document.querySelectorAll('.service-btn').forEach(b => b.classList.remove('active'));
+        if(svc === 'All') {
+            document.querySelector('.service-btn').classList.add('active');
+        } else {
+            document.getElementById(`svc-${svc}`).classList.add('active');
+        }
+
+        // 데이터 필터링
+        if (svc === 'All') {
+            quizData = (filterMode === 'wrong') ? 
+                originalData.filter(q => JSON.parse(localStorage.getItem('saa_wrong_notes') || "[]").includes(q.id)) : 
+                originalData;
+        } else {
+            quizData = originalData.filter(q => q.aws_service === svc);
+            // 오답노트 모드라면 그 중 오답인 것만
+            if (filterMode === 'wrong') {
+                const wrongIds = JSON.parse(localStorage.getItem('saa_wrong_notes') || "[]");
+                quizData = quizData.filter(q => wrongIds.includes(q.id));
+            }
+        }
+
+        currentIdx = 0;
+        renderList();
+        renderQuestion();
+    }
+
+    // 오답 개수 업데이트
+    function updateWrongCount() {
+        const wrongNotes = JSON.parse(localStorage.getItem('saa_wrong_notes') || "[]");
+        document.getElementById('wrong-view-btn').innerText = `오답 노트 (${wrongNotes.length})`;
+    }
+
+    // 필터 변경 기능
+    function setFilter(mode) {
+        filterMode = mode;
+        const wrongNotes = JSON.parse(localStorage.getItem('saa_wrong_notes') || "[]");
+        
+        document.getElementById('all-view-btn').classList.toggle('active', mode === 'all');
+        document.getElementById('wrong-view-btn').classList.toggle('active', mode === 'wrong');
+
+        if (mode === 'wrong') {
+            quizData = originalData.filter(q => wrongNotes.includes(q.id));
+            if (quizData.length === 0) {
+                alert("저장된 오답이 없습니다!");
+                setFilter('all');
+                return;
+            }
+        } else {
+            quizData = originalData;
+        }
+        
+        currentIdx = 0;
+        renderList();
+        renderQuestion();
+    }
+
+    function renderList() {
+        const listContainer = document.getElementById('question-list');
+        listContainer.innerHTML = '';
+        
+        quizData.forEach((q, index) => {
+            // 컨테이너 생성
+            const container = document.createElement('div');
+            container.className = 'q-row-container';
+
+            // 문제 이동 버튼
+            const btn = document.createElement('button');
+            btn.className = 'q-row-btn';
+            btn.id = `list-item-${index}`;
+            btn.innerHTML = `<strong>${q.id}</strong>`;
+            btn.onclick = () => jumpToQuestion(index);
+
+            // 개별 삭제 버튼
+            const delBtn = document.createElement('button');
+            delBtn.className = 'side-del-btn';
+            delBtn.innerText = 'X';
+            
+            // 오답 노트 모드일 때만 X 버튼 표시
+            if (filterMode === 'wrong') {
+                delBtn.style.display = 'block';
+            }
+
+            // 삭제 이벤트 (버튼 클릭 시 문제 이동 안 되게 stopPropagation 추가)
+            delBtn.onclick = (e) => {
+                e.stopPropagation();
+                removeSpecificFromWrong(q.id);
+            };
+
+            container.appendChild(btn);
+            container.appendChild(delBtn);
+            listContainer.appendChild(container);
+        });
+    }
+
+    function filterQuestions() {
+        const keyword = document.getElementById('q-search').value.toLowerCase();
+        const listContainer = document.getElementById('question-list');
+        const items = listContainer.getElementsByClassName('q-row-container');
+
+        // 모든 아이템을 일단 숨기고, 검색어에 맞는 것만 보이게 처리
+        Array.from(items).forEach(item => {
+            // 문제 번호 버튼의 텍스트 추출
+            const btnText = item.querySelector('.q-row-btn').innerText.toLowerCase();
+            
+            if (btnText.includes(keyword)) {
+                item.style.display = 'flex'; // 순서대로 다시 배치됨
+            } else {
+                item.style.display = 'none';
+            }
+        });
+
+        // 검색 결과가 있다면 리스트 최상단으로 스크롤 이동
+        listContainer.scrollTop = 0;
+    }
+
+    function renderQuestion() {
+        const q = quizData[currentIdx];
+        selectedOptions.clear(); // 선택 초기화
+        
+        document.getElementById('result').style.display = 'none';
+        const quizContent = document.getElementById('quiz-content');
+        quizContent.scrollTop = 0;
+
+        document.getElementById('prev-btn').disabled = currentIdx === 0;
+        document.getElementById('next-btn').disabled = currentIdx === quizData.length - 1;
+
+        // 사이드바 활성화 표시
+        document.querySelectorAll('.q-row-btn').forEach(btn => btn.classList.remove('active'));
+        const activeItem = document.getElementById(`list-item-${currentIdx}`);
+        if(activeItem) {
+            activeItem.classList.add('active');
+            activeItem.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }
+
+        // 정답 개수 파악
+        const correctCount = q.answer.split(',').length;
+        const subTitle = correctCount > 1 ? `<span style="color: #ff9900; font-size: 0.9rem;">(정답 ${correctCount}개 선택)</span>` : "";
+
+        // 문제 및 보기 생성
+        let html = `
+            <div class="question">${q.id}. ${q.question} ${subTitle}</div>
+            <ul class="options">
+                ${Object.entries(q.options).map(([key, value]) => `
+                    <li class="option-item" id="opt-${key}" onclick="toggleOption(this, '${key}')">
+                        <strong>${key}.</strong> ${value}
+                    </li>
+                `).join('')}
+            </ul>
+        `;
+        
+        document.getElementById('question-area').innerHTML = html;
+    }
+
+    // 특정 ID를 오답노트에서 삭제하는 함수
+    function removeSpecificFromWrong(questionId) {
+        let wrongNotes = JSON.parse(localStorage.getItem('saa_wrong_notes') || "[]");
+        wrongNotes = wrongNotes.filter(id => id !== questionId);
+        localStorage.setItem('saa_wrong_notes', JSON.stringify(wrongNotes));
+        
+        updateWrongCount();
+        
+        // 오답 노트 모드라면 즉시 리스트 갱신
+        if (filterMode === 'wrong') {
+            const isCurrentBeingDeleted = quizData[currentIdx].id === questionId;
+            quizData = originalData.filter(q => wrongNotes.includes(q.id));
+            
+            if (quizData.length === 0) {
+                alert("오답 노트를 모두 정복하셨습니다!");
+                setFilter('all');
+            } else {
+                // 현재 보고 있는 문제를 지웠다면 첫 번째 문제로 이동, 아니면 유지
+                if (isCurrentBeingDeleted) currentIdx = 0;
+                renderList();
+                renderQuestion();
+            }
+        }
+    }
+
+    // 다중 선택을 위해 토글 방식으로 변경
+    function toggleOption(el, key) {
+        if (selectedOptions.has(key)) {
+            selectedOptions.delete(key);
+            el.classList.remove('selected');
+        } else {
+            selectedOptions.add(key);
+            el.classList.add('selected');
+        }
+    }
+
+    // 기존 checkAnswer 함수 내부에 저장 로직 추가
+    function checkAnswer() {
+        if (selectedOptions.size === 0) return alert("최소 하나 이상의 답안을 선택하십시오.");
+        
+        const q = quizData[currentIdx];
+        const resultDiv = document.getElementById('result');
+        const correctAnswers = q.answer.split(',').map(s => s.trim()).sort();
+        const userAnswers = Array.from(selectedOptions).sort();
+        
+        const isCorrect = JSON.stringify(correctAnswers) === JSON.stringify(userAnswers);
+        
+        // 해설 HTML 구성 (링크 포함)
+        let expHtml = q.explanation;
+        if (q.link) {
+            expHtml += `<br><br><a href="${q.link}" target="_blank" class="ref-link">🔗 AWS 공식 문서/해설 참고하기</a>`;
+        }
+    
+        resultDiv.style.display = 'block';
+        if (isCorrect) {
+            resultDiv.className = 'correct';
+            document.getElementById('result-text').innerText = "✅ 정답입니다!";
+        } else {
+            resultDiv.className = 'wrong';
+            document.getElementById('result-text').innerText = "❌ 오답입니다. (정답: " + q.answer + ")";
+            saveToWrongNotes(q.id); // <--- 오답일 때 로컬스토리지 저장!
+        }
+        document.getElementById('explanation-text').innerHTML = expHtml;
+
+        setTimeout(() => {
+            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
+    }
+
+    function changeQuestion(step) {
+        currentIdx += step;
+        renderQuestion();
+    }
+
+    function jumpToQuestion(index) {
+        currentIdx = index;
+        renderQuestion();
+    }
+</script>
+
+</body>
+</html>
