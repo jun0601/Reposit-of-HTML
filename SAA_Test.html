@@ -3,37 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <title>AWS SAA 모의고사 마스터</title>
-    <style>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔥</text></svg>">
+<style>
         body {
-            background-color: #1a1a1a;
-            color: #e0e0e0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 50%, #94a3b8 100%); 
+            color: #1e293b;           
+            font-family: 'Pretendard', 'Inter', 'Segoe UI', system-ui, sans-serif;
             margin: 0;
             display: flex;
             justify-content: center;
-            align-items: center; /* [추가] 수직 중앙 정렬 */
+            align-items: center;
             height: 100vh;
             overflow: hidden;
         }
 
         .main-wrapper {
-            width: 1500px; /* 가로폭 살짝 확장 */
+            width: 94vw; 
             display: flex;
-            gap: 20px;
-            height: 90vh; /* [수정] 화면 높이의 90%만 사용 (상하 5%씩 여백 발생) */
-            max-height: 950px; /* 너무 커지는 것 방지 */
-            padding: 20px 0; /* 내부 여백 살짝 추가 */
+            gap: 16px;
+            height: 96vh; 
+            max-height: 1080px; 
+            padding: 20px 3vw; 
             box-sizing: border-box;
         }
 
         .quiz-container {
-            flex: 1.5;
-            background-color: #2d2d2d;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            flex: 2.0;
+            background: rgba(248, 250, 252, 0.75); 
+            backdrop-filter: blur(20px); 
+            padding: 24px 35px;
+            border-radius: 20px; 
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.4); 
             display: flex;
             flex-direction: column;
+            border: 1px solid rgba(255, 255, 255, 0.3); 
         }
 
         #quiz-content {
@@ -43,249 +46,928 @@
             margin-bottom: 20px;
         }
 
-        h1 { border-bottom: 2px solid #4a4a4a; padding-bottom: 10px; margin-top: 0; font-size: 1.4rem; color: #fff; }
-        .question { font-size: 1.2rem; margin-bottom: 25px; font-weight: bold; line-height: 1.5; }
+        h1 { border-bottom: 2px solid rgba(148, 163, 184, 0.3); padding-bottom: 10px; margin-top: 0; margin-bottom: 10px; font-size: 1.2rem; color: #0f172a; display: flex; align-items: center; justify-content: space-between; }
+        .question { font-size: 1.25rem; margin-bottom: 30px; font-weight: 700; line-height: 1.6; }
         .options { list-style: none; padding: 0; }
+        
         .option-item {
-            background: #3d3d3d;
-            margin-bottom: 12px;
-            padding: 15px;
-            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.6); 
+            margin-bottom: 14px;
+            padding: 18px;
+            border-radius: 12px;
             cursor: pointer;
-            transition: 0.2s;
-            border: 1px solid transparent;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(203, 213, 225, 0.8); 
+            color: #334155;
+            box-sizing: border-box;
         }
-        .option-item:hover { background: #4a4a4a; border-color: #666; }
+
+        .option-item:hover { 
+            background: rgba(255, 255, 255, 0.95); 
+            border-color: #6366f1; 
+            box-shadow: inset 0 0 0 1px #6366f1;
+            transform: translateY(-1px);
+        }
         
-        /* 다중 선택 시 파란색으로 표시 */
-        .option-item.selected { background: #0056b3; border: 1px solid #007bff; }
+        .option-item.selected { 
+            background: rgba(99, 102, 241, 0.15); 
+            border: 2px solid #6366f1; 
+            box-shadow: none;
+            color: #4338ca;
+            font-weight: 600;
+        }
+
+        /* 정답/오답 표시 */
+        .option-item.answer-correct {
+            background: rgba(16, 185, 129, 0.15) !important;
+            border: 2px solid #10b981 !important;
+            color: #065f46 !important;
+            font-weight: 700;
+        }
+        .option-item.answer-wrong {
+            background: rgba(244, 63, 94, 0.15) !important;
+            border: 2px solid #f43f5e !important;
+            color: #9f1239 !important;
+        }
+        .option-item.disabled { cursor: default; pointer-events: none; }
         
-        /* 정답 및 오답 알림창 스타일 수정 */
         #result { 
             margin-top: 30px; 
-            padding: 20px; 
-            border-radius: 8px; /* 조금 더 부드러운 곡선 */
+            padding: 24px; 
+            border-radius: 16px; 
             display: none; 
-            line-height: 1.6;
-            transition: all 0.3s ease; /* 나타날 때 부드럽게 */
+            line-height: 1.7;
+            transition: all 0.4s ease; 
         }
 
-        /* 정답: 차분한 파스텔 그린 */
         .correct { 
-            background-color: #2e3c31; /* 진한 파스텔 그린 배경 */
-            border: 1px solid #72a376; /* 부드러운 초록색 테두리 */
-            color: #d4edda; 
+            background-color: rgba(16, 185, 129, 0.1); 
+            border: 1px solid #10b981; 
+            color: #065f46; 
         }
 
-        /* 오답: 차분한 파스텔 레드/로즈 */
         .wrong { 
-            background-color: #3c2e2e; /* 진한 파스텔 로즈 배경 */
-            border: 1px solid #a37272; /* 부드러운 붉은색 테두리 */
-            color: #f8d7da; 
+            background-color: rgba(244, 63, 94, 0.1); 
+            border: 1px solid #f43f5e; 
+            color: #9f1239; 
         }
 
-        /* 해설 텍스트 가독성 향상 */
         .explanation { 
             margin-top: 15px; 
             padding-top: 15px;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            font-size: 0.95rem; 
-            color: #cccccc; /* 해설은 살짝 톤다운하여 눈의 피로 감소 */
+            border-top: 1px solid rgba(0,0,0,0.05);
+            font-size: 1rem; 
+            color: #475569; 
             white-space: pre-wrap;
         }
 
-        .sidebar {
-            flex: 0.6;
-            background-color: #2d2d2d;
+        /* ===== 진행률 바 ===== */
+        .progress-bar-wrap {
+            margin-bottom: 10px;
+        }
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(203, 213, 225, 0.5);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #6366f1, #ff9900);
+            border-radius: 10px;
+            transition: width 0.4s ease;
+        }
+
+        /* ===== 통계 ===== */
+        .stats-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .stat-chip {
+            flex: 1;
+            padding: 6px 8px;
             border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-align: center;
+            background: rgba(255,255,255,0.5);
+            border: 1px solid rgba(203,213,225,0.7);
+            color: #475569;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+        .stat-chip span { display: inline; font-size: 0.95rem; font-weight: 800; }
+        .stat-chip.correct-chip span { color: #10b981; }
+        .stat-chip.wrong-chip span { color: #f43f5e; }
+        .stat-chip.accuracy-chip span { color: #6366f1; }
+
+        /* ===== 타이머 ===== */
+        .timer-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: #64748b;
+            font-variant-numeric: tabular-nums;
+        }
+        .timer-wrap.warning { color: #f43f5e; font-weight: bold; }
+
+        .sidebar {
+            flex: 0.43;
+            background: rgba(248, 250, 252, 0.75);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
             display: flex;
             flex-direction: column;
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
         .search-box { margin-bottom: 15px; }
         #q-search {
-            width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #444;
-            background-color: #1a1a1a; color: white; box-sizing: border-box;
+            width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(203, 213, 225, 0.8);
+            background-color: rgba(255, 255, 255, 0.5); color: #1e293b; box-sizing: border-box;
         }
         .question-list {
             flex: 1;
             overflow-y: auto;
-            border-top: 1px solid #444;
-            padding-top: 10px;
-            display: flex;       /* 추가 */
-            flex-direction: column; /* 추가: 아이템들이 수직으로 쌓이도록 함 */
+            border-top: 1px solid rgba(226, 232, 240, 0.5);
+            padding-top: 12px;
+            display: flex;       
+            flex-direction: column; 
         }
-        /* 리스트 아이템을 감싸는 컨테이너 */
         .q-row-container {
             display: flex;
             align-items: center;
-            gap: 5px;
-            margin-bottom: 8px;
+            gap: 8px;
+            margin-bottom: 10px;
         }
-        /* 문제 이동 버튼 (기존 q-row-btn 수정) */
         .q-row-btn {
-            flex: 1; /* 가로 공간 꽉 채우기 */
-            background: #3d3d3d; border: none; color: #ccc;
-            padding: 12px 15px; border-radius: 4px;
+            flex: 1; 
+            background: rgba(255, 255, 255, 0.5); border: 1px solid rgba(203, 213, 225, 0.7); color: #475569;
+            padding: 14px 18px; border-radius: 10px;
             cursor: pointer; text-align: left; transition: 0.2s;
             overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
         }
-        .q-row-btn:hover { background: #4a4a4a; color: #fff; }
-        .q-row-btn.active { background: #007bff; color: white; font-weight: bold; }
+        .q-row-btn:hover { background: rgba(255, 255, 255, 0.8); color: #0f172a; border-color: #6366f1; }
+        .q-row-btn.active { background: #475569; color: white; font-weight: bold; border-color: #334155; }
+        /* 정답/오답 표시 닷 */
+        .q-row-btn.q-correct::after { content: ' ✓'; color: #10b981; }
+        .q-row-btn.q-wrong::after { content: ' ✗'; color: #f43f5e; }
 
-        .nav-buttons { display: flex; justify-content: space-between; gap: 10px; border-top: 1px solid #444; padding-top: 20px; }
+        .nav-buttons { display: flex; justify-content: space-between; gap: 10px; border-top: 1px solid rgba(226, 232, 240, 0.5); padding-top: 12px; margin-top: 4px; }
         .nav-btn {
-            background-color: #007bff; color: white; border: none;
-            padding: 12px 25px; border-radius: 4px; cursor: pointer; font-size: 1rem; flex: 1;
+            background-color: #334155; color: white; border: none;
+            padding: 10px 28px; border-radius: 10px; cursor: pointer; font-size: 0.95rem; flex: 1;
+            font-weight: 600; transition: 0.2s;
         }
-        .nav-btn:disabled { background-color: #555; cursor: not-allowed; }
-        #check-btn { background-color: #6c757d; }
+        .nav-btn:disabled { background-color: #cbd5e1; cursor: not-allowed; }
+        #check-btn { background-color: #ff9900; }
+        #next-btn.auto-advance { background-color: #10b981; }
 
-        /* 오답 필터 버튼 스타일 */
         .filter-container {
             display: flex;
-            gap: 5px;
-            margin-bottom: 10px;
+            gap: 6px;
+            margin-bottom: 12px;
         }
         .filter-btn {
             flex: 1;
-            padding: 8px;
-            border-radius: 4px;
-            border: 1px solid #444;
-            background: #3d3d3d;
-            color: #ccc;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(203, 213, 225, 0.7);
+            background: rgba(255, 255, 255, 0.5);
+            color: #64748b;
             cursor: pointer;
             font-size: 0.85rem;
         }
         .filter-btn.active {
-            background: #a37272; /* 오답노트 느낌의 파스텔 레드 */
-            color: white;
-            border-color: #f44336;
+            background: rgba(244, 63, 94, 0.15); 
+            color: #b91c1c;
+            border-color: #fca5a5;
         }
-        /* 사이드바 개별 삭제 버튼 */
+        
         .side-del-btn {
-            background: #a37272; color: white; border: none;
-            width: 35px; height: 40px; border-radius: 4px;
-            cursor: pointer; font-weight: bold; transition: 0.2s;
-            display: none; /* 기본적으론 숨김 (오답모드에서만 표시) */
-        }
-        .side-del-btn:hover { background: #b71c1c; }
-        /* 왼쪽 서비스 필터 사이드바 */
-        .service-sidebar {
-            flex: 0.4;
-            background-color: #2d2d2d;
-            border-radius: 12px; /* 이전 수정사항 반영 */
-            padding: 0; /* 내부 여백을 하위 요소로 분산 */
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            display: flex;
-            flex-direction: column; /* 세로로 배치 */
-            overflow: hidden; /* 사이드바 자체 스크롤은 방지 */
+            background: rgba(244, 63, 94, 0.2); color: #b91c1c; border: none;
+            width: 38px; height: 46px; border-radius: 8px;
+            cursor: pointer; font-weight: bold; display: none; 
         }
 
+        /* ===== 서비스 사이드바 ===== */
+        .service-sidebar {
+            flex: 0.48;
+            background: rgba(248, 250, 252, 0.75);
+            backdrop-filter: blur(20px);
+            border-radius: 20px; 
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+        .service-search-box {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+            box-sizing: border-box;
+        }
+        #svc-search {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            display: block;
+        }
+        .service-scroll-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }   
         .service-title {
             font-size: 1rem;
-            font-weight: bold;
-            padding: 20px 15px 10px 15px; /* 내부 여백 조절 */
-            margin-bottom: 0;
-            border-bottom: 1px solid #444;
-            background-color: #2d2d2d; /* 배경색을 주어 아래 목록이 겹쳐 보이지 않게 함 */
-            z-index: 10;
+            font-weight: 700;
+            padding: 24px 20px 12px 20px;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+            background-color: transparent; 
         }
-
-        /* 필터 버튼들이 담긴 목록 영역만 스크롤되도록 설정 */
-        #service-list-container { 
-            flex: 1;
-            overflow-y: auto;
-            padding: 15px;
-        }
-
-        /* All Services 버튼 포함 전체 리스트 영역 */
-        .service-scroll-area {
-            padding: 15px;
-            overflow-y: auto;
-            flex: 1;
-        }
-
         .service-btn {
             width: 100%;
-            background: #3d3d3d;
-            border: 1px solid transparent;
-            color: #bbb;
-            padding: 10px;
-            margin-bottom: 5px;
-            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(203, 213, 225, 0.7);
+            color: #64748b;
+            padding: 10px 12px;
+            margin-bottom: 6px;
+            border-radius: 10px;
             cursor: pointer;
             text-align: left;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             transition: 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .service-btn:hover { background: rgba(255, 255, 255, 0.8); color: #1e293b; border-color: #6366f1; }
+        .service-btn.active { background: #ff9900; color: white; border-color: #e68a00; }
+        .svc-count {
+            font-size: 0.75rem;
+            background: rgba(0,0,0,0.08);
+            padding: 2px 7px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+        .service-btn.active .svc-count { background: rgba(255,255,255,0.3); }
+
+        /* ===== 랜덤 모드 / 설정 버튼 ===== */
+        .toolbar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .tool-btn {
+            flex: 1;
+            padding: 9px 8px;
+            border-radius: 9px;
+            border: 1px solid rgba(203, 213, 225, 0.7);
+            background: rgba(255,255,255,0.5);
+            color: #64748b;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: 0.2s;
+            text-align: center;
+        }
+        .tool-btn:hover { background: rgba(255,255,255,0.9); color: #1e293b; border-color: #6366f1; }
+        .tool-btn.on { background: rgba(99,102,241,0.15); color: #4338ca; border-color: #6366f1; }
+        .tool-btn.reset-btn { color: #b91c1c; border-color: rgba(244,63,94,0.4); }
+        .tool-btn.reset-btn:hover { background: rgba(244,63,94,0.1); }
+
+        /* ===== 키보드 힌트 ===== */
+        .kbd-hint {
+            font-size: 0.72rem;
+            color: #94a3b8;
+            text-align: center;
+            padding-top: 8px;
+            border-top: 1px solid rgba(226,232,240,0.5);
+        }
+        kbd {
+            background: rgba(255,255,255,0.7);
+            border: 1px solid rgba(203,213,225,0.8);
+            border-radius: 4px;
+            padding: 1px 5px;
+            font-size: 0.7rem;
+            font-family: monospace;
         }
 
-        .service-btn:hover { background: #4a4a4a; color: white; }
-        .service-btn.active { background: #007bff; color: white; border-color: #007bff; } /* AWS 상징색 */
+        /* ===== 북마크 버튼 ===== */
+        .bookmark-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 4px;
+            opacity: 0.4;
+            transition: 0.2s;
+        }
+        .bookmark-btn.bookmarked { opacity: 1; }
 
-        /* 해설 링크 스타일 */
         .ref-link {
             display: inline-block;
-            margin-top: 10px;
-            color: #3498db;
+            margin-top: 12px;
+            color: #6366f1;
             text-decoration: none;
             font-size: 0.9rem;
         }
-        .ref-link:hover { text-decoration: underline; }
-        /* 스크롤바 전체 디자인 */
-        ::-webkit-scrollbar {
-            width: 8px;  /* 세로 스크롤바 두께 */
-            height: 8px; /* 가로 스크롤바 두께 */
+        
+
+
+        /* ===== 플래시카드 ===== */
+        .flashcard-wrap { perspective: 1000px; width: 100%; max-width: 560px; margin: 0 auto 24px; height: 200px; cursor: pointer; }
+        .flashcard { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.5s; }
+        .flashcard.flipped { transform: rotateY(180deg); }
+        .flashcard-front, .flashcard-back {
+            position: absolute; inset: 0; border-radius: 16px; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; padding: 24px; backface-visibility: hidden;
+            text-align: center; line-height: 1.6;
+        }
+        .flashcard-front { background: linear-gradient(135deg, #334155, #1e293b); color: white; font-size: 1.1rem; font-weight: 700; }
+        .flashcard-back { background: linear-gradient(135deg, #f8fafc, #e2e8f0); color: #1e293b; font-size: 0.9rem; transform: rotateY(180deg); }
+        .flash-svc-tag { font-size: 0.72rem; opacity: 0.6; margin-bottom: 8px; }
+        .flash-nav { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 20px; }
+        .flash-nav-btn { padding: 9px 20px; border-radius: 10px; border: none; cursor: pointer; font-weight: 700; font-size: 0.88rem; }
+        .flash-knew { background: rgba(16,185,129,0.15); color: #065f46; }
+        .flash-review { background: rgba(244,63,94,0.15); color: #9f1239; }
+        .flash-skip { background: rgba(100,116,139,0.15); color: #475569; }
+        .flash-progress-text { text-align:center; color:#94a3b8; font-size:0.8rem; margin-bottom:16px; }
+
+        /* ===== 빈칸 채우기 ===== */
+        .blank-card { background: rgba(255,255,255,0.7); border: 1px solid rgba(203,213,225,0.8); border-radius: 14px; padding: 22px; margin-bottom: 20px; }
+        .blank-q { font-size: 1rem; font-weight: 600; line-height: 1.7; color: #1e293b; margin-bottom: 14px; }
+        .blank-input { padding: 10px 14px; border-radius: 9px; border: 2px solid #cbd5e1; font-size: 0.95rem; width: 160px; outline: none; }
+        .blank-input:focus { border-color: #6366f1; }
+        .blank-input.correct { border-color: #10b981; background: rgba(16,185,129,0.08); color: #065f46; font-weight: 700; }
+        .blank-input.wrong { border-color: #f43f5e; background: rgba(244,63,94,0.08); color: #9f1239; }
+        .blank-hint { font-size: 0.8rem; color: #94a3b8; margin-top: 8px; }
+        .blank-answer-reveal { font-size: 0.85rem; color: #10b981; font-weight: 700; margin-top: 6px; display:none; }
+        .blank-check-btn { margin-left: 8px; padding: 10px 16px; border-radius: 9px; border: none; background: #ff9900; color: white; cursor: pointer; font-weight: 700; font-size: 0.88rem; }
+
+        /* ===== 서비스 매칭 ===== */
+        .match-card { background: rgba(255,255,255,0.7); border: 1px solid rgba(203,213,225,0.8); border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+        .match-desc { font-size: 0.92rem; line-height: 1.6; color: #334155; margin-bottom: 14px; font-weight: 500; }
+        .match-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .match-opt { padding: 10px 12px; border-radius: 9px; border: 1px solid rgba(203,213,225,0.8); background: rgba(255,255,255,0.6); cursor: pointer; font-size: 0.83rem; font-weight: 600; color: #475569; transition: 0.15s; text-align:center; }
+        .match-opt:hover { background: rgba(255,255,255,0.95); border-color: #6366f1; color: #4338ca; }
+        .match-opt.match-correct { background: rgba(16,185,129,0.15) !important; border-color: #10b981 !important; color: #065f46 !important; }
+        .match-opt.match-wrong { background: rgba(244,63,94,0.15) !important; border-color: #f43f5e !important; color: #9f1239 !important; }
+        .match-opt.match-show { background: rgba(16,185,129,0.08) !important; border-color: #10b981 !important; color: #065f46 !important; }
+        .match-opt.disabled { pointer-events: none; }
+        .quiz-score-bar { display:flex; justify-content:space-between; align-items:center; padding:10px 0; margin-bottom:16px; border-bottom:1px solid rgba(226,232,240,0.7); font-size:0.82rem; color:#64748b; }
+        body.dark-mode .blank-card, body.dark-mode .match-card { background: rgba(30,41,59,0.6); border-color: rgba(71,85,105,0.5); }
+        body.dark-mode .blank-q, body.dark-mode .match-desc { color: #e2e8f0; }
+        body.dark-mode .blank-input { background: rgba(15,23,42,0.6); color: #f1f5f9; border-color: rgba(71,85,105,0.7); }
+        body.dark-mode .match-opt { background: rgba(30,41,59,0.5); color: #94a3b8; border-color: rgba(71,85,105,0.5); }
+        body.dark-mode .flashcard-back { background: linear-gradient(135deg, #1e293b, #0f172a); color: #f1f5f9; }
+
+        /* ===== 서비스 노트 팝업 ===== */
+        .note-popup {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.55);
+            z-index: 4000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .note-popup.open { display: flex; }
+        .note-panel {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 32px;
+            width: 680px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        .note-panel h2 { margin: 0 0 6px 0; font-size: 1.3rem; display: flex; align-items: center; gap: 8px; }
+        .note-desc { color: #64748b; font-size: 0.9rem; line-height: 1.6; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid rgba(226,232,240,0.8); }
+        .note-section-title { font-size: 0.78rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin: 14px 0 8px 0; }
+        .note-points { list-style: none; padding: 0; margin: 0; }
+        .note-points li { padding: 8px 12px; background: rgba(255,255,255,0.7); border-radius: 8px; margin-bottom: 6px; font-size: 0.88rem; line-height: 1.5; border-left: 3px solid #6366f1; color: #334155; }
+        .note-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        .note-table th { background: #334155; color: white; padding: 8px 12px; text-align: left; font-weight: 600; }
+        .note-table th:first-child { border-radius: 8px 0 0 0; }
+        .note-table th:last-child { border-radius: 0 8px 0 0; }
+        .note-table td { padding: 8px 12px; border-bottom: 1px solid rgba(226,232,240,0.6); color: #334155; vertical-align: top; }
+        .note-table tr:nth-child(even) td { background: rgba(248,250,252,0.8); }
+        .note-close { position: absolute; top: 16px; right: 20px; background: none; border: none; font-size: 1.4rem; cursor: pointer; color: #94a3b8; }
+        .note-close:hover { color: #334155; }
+        .note-domain-badge {
+            display: inline-block;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 20px;
+            margin-bottom: 10px;
+        }
+        /* 정답 확인 후 노트 배너 */
+        .note-banner {
+            display: none;
+            margin-top: 14px;
+            padding: 12px 16px;
+            background: rgba(99,102,241,0.08);
+            border: 1px solid rgba(99,102,241,0.3);
+            border-radius: 12px;
+            font-size: 0.88rem;
+            color: #4338ca;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .note-banner:hover { background: rgba(99,102,241,0.15); }
+        .note-banner strong { font-weight: 700; }
+
+        /* 학습탭 */
+        .study-tab {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.55);
+            z-index: 4000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .study-tab.open { display: flex; }
+        .study-panel {
+            background: #f8fafc;
+            border-radius: 20px;
+            width: 900px;
+            max-height: 88vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .study-header {
+            padding: 20px 28px 16px;
+            border-bottom: 1px solid rgba(226,232,240,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+        .study-header h2 { margin: 0; font-size: 1.2rem; }
+        .study-search {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            font-size: 0.85rem;
+            width: 200px;
+        }
+        .study-body {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        .study-service-list {
+            width: 220px;
+            border-right: 1px solid rgba(226,232,240,0.8);
+            overflow-y: auto;
+            padding: 12px;
+            flex-shrink: 0;
+        }
+        .study-svc-btn {
+            width: 100%;
+            text-align: left;
+            padding: 9px 12px;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            color: #64748b;
+            cursor: pointer;
+            font-size: 0.82rem;
+            margin-bottom: 3px;
+            transition: 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .study-svc-btn:hover { background: rgba(99,102,241,0.08); color: #334155; }
+        .study-svc-btn.active { background: #334155; color: white; font-weight: 700; }
+        .study-svc-btn .svc-icon { font-size: 0.9rem; }
+        .study-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px 28px;
         }
 
-        /* 스크롤바 트랙 (바탕) */
-        ::-webkit-scrollbar-track {
-            background: #1a1a1a; 
+        /* 다크모드 노트 */
+
+        /* ===== 서비스 미니 퀴즈 ===== */
+        .mini-opt {
+            background: rgba(255,255,255,0.6);
+            border: 1px solid rgba(203,213,225,0.8);
             border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.18s;
+            font-size: 0.88rem;
+            line-height: 1.5;
+            color: #334155;
+            text-align: left;
+            width: 100%;
         }
+        .mini-opt:hover { background: rgba(255,255,255,0.95); border-color: #6366f1; }
+        .mini-opt.mini-correct { background: rgba(16,185,129,0.12) !important; border: 2px solid #10b981 !important; color: #065f46 !important; font-weight: 700; }
+        .mini-opt.mini-wrong { background: rgba(244,63,94,0.12) !important; border: 2px solid #f43f5e !important; color: #9f1239 !important; }
+        .mini-opt.mini-show-correct { background: rgba(16,185,129,0.08) !important; border: 2px solid #10b981 !important; color: #065f46 !important; }
+        .mini-opt.disabled { pointer-events: none; }
+        .mini-explanation {
+            margin-top: 12px;
+            padding: 12px 14px;
+            background: rgba(248,250,252,0.9);
+            border-radius: 10px;
+            font-size: 0.84rem;
+            color: #475569;
+            line-height: 1.6;
+            border-left: 3px solid #94a3b8;
+        }
+        .mini-progress {
+            font-size: 0.78rem;
+            color: #94a3b8;
+            margin-bottom: 14px;
+        }
+        .mini-score-box {
+            text-align: center;
+            padding: 32px 20px;
+            background: rgba(248,250,252,0.9);
+            border-radius: 16px;
+        }
+        body.dark-mode .mini-opt { background: rgba(30,41,59,0.6); border-color: rgba(71,85,105,0.7); color: #e2e8f0; }
+        body.dark-mode .mini-opt:hover { background: rgba(51,65,85,0.8); }
+        body.dark-mode .mini-explanation { background: rgba(15,23,42,0.6); color: #94a3b8; }
+        body.dark-mode .mini-score-box { background: rgba(15,23,42,0.6); }
+        body.dark-mode #study-tab-bar { border-bottom-color: rgba(255,255,255,0.1); }
 
-        /* 스크롤바 핸들 (움직이는 부분) */
+        body.dark-mode .note-panel,
+        body.dark-mode .study-panel { background: #1e293b; color: #f1f5f9; }
+        body.dark-mode .note-desc { color: #94a3b8; border-bottom-color: rgba(255,255,255,0.1); }
+        body.dark-mode .note-points li { background: rgba(30,41,59,0.8); color: #e2e8f0; border-left-color: #818cf8; }
+        body.dark-mode .note-table td { color: #e2e8f0; border-bottom-color: rgba(255,255,255,0.08); }
+        body.dark-mode .note-table tr:nth-child(even) td { background: rgba(15,23,42,0.5); }
+        body.dark-mode .note-close { color: #475569; }
+        body.dark-mode .note-close:hover { color: #f1f5f9; }
+        body.dark-mode .note-banner { background: rgba(99,102,241,0.15); border-color: rgba(99,102,241,0.4); color: #818cf8; }
+        body.dark-mode .study-header { border-bottom-color: rgba(255,255,255,0.1); }
+        body.dark-mode .study-service-list { border-right-color: rgba(255,255,255,0.1); }
+        body.dark-mode .study-svc-btn { color: #94a3b8; }
+        body.dark-mode .study-svc-btn:hover { background: rgba(99,102,241,0.15); color: #e2e8f0; }
+        body.dark-mode .study-svc-btn.active { background: #475569; color: white; }
+        body.dark-mode .study-search { background: rgba(30,41,59,0.8); color: #f1f5f9; border-color: rgba(71,85,105,0.8); }
+        body.dark-mode .note-section-title { color: #64748b; }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb {
-            background: #4a4a4a; /* 기본 핸들 색상 */
+            background: rgba(148, 163, 184, 0.5); 
             border-radius: 10px;
-            border: 2px solid #1a1a1a; /* 트랙과 구분감을 주기 위한 여백 */
+        }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+        .question-list::-webkit-scrollbar, .service-sidebar::-webkit-scrollbar { width: 4px; }
+
+        /* ===== 다크모드 ===== */
+        body.dark-mode {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            color: #f1f5f9;
         }
 
-        /* 스크롤바 핸들 마우스 오버 시 */
-        ::-webkit-scrollbar-thumb:hover {
-            background: #ff9900; /* AWS 오렌지색으로 포인트 */
+        body.dark-mode #user-info { background: rgba(30,41,59,0.95); }
+        body.dark-mode #user-name { color: #f1f5f9; }
+
+        body.dark-mode .quiz-container,
+        body.dark-mode .sidebar,
+        body.dark-mode .service-sidebar {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #f1f5f9;
+        }
+        body.dark-mode h1, body.dark-mode .service-title { color: #f8fafc; border-bottom-color: rgba(255,255,255,0.1); }
+        body.dark-mode .option-item {
+            background: rgba(30, 41, 59, 0.6);
+            border-color: rgba(71, 85, 105, 0.8);
+            color: #e2e8f0;
+        }
+        body.dark-mode .option-item:hover { background: rgba(51, 65, 85, 0.9); }
+        body.dark-mode .option-item.selected { background: rgba(99, 102, 241, 0.2); border-color: #818cf8; color: #e0e7ff; }
+        body.dark-mode .q-row-btn, body.dark-mode .service-btn, body.dark-mode #q-search {
+            background: rgba(30, 41, 59, 0.5);
+            color: #cbd5e1;
+            border-color: rgba(71, 85, 105, 0.5);
+        }
+        body.dark-mode #svc-search {
+            background: rgba(30, 41, 59, 0.7);
+            color: #f1f5f9;
+            border-color: rgba(71, 85, 105, 0.8);
+        }
+        body.dark-mode #svc-search:focus { background: rgba(15,23,42,0.9); border-color: #ff9900; outline: none; }
+        body.dark-mode .question { color: #f8fafc; }
+        body.dark-mode .explanation { color: #94a3b8; border-top-color: rgba(255,255,255,0.1); }
+        body.dark-mode .stat-chip { background: rgba(30,41,59,0.6); border-color: rgba(71,85,105,0.5); color: #94a3b8; }
+        body.dark-mode .tool-btn { background: rgba(30,41,59,0.5); color: #94a3b8; border-color: rgba(71,85,105,0.5); }
+        body.dark-mode .tool-btn:hover { background: rgba(51,65,85,0.8); color: #fff; }
+        body.dark-mode .tool-btn.on { background: rgba(99,102,241,0.2); color: #818cf8; }
+        body.dark-mode .progress-bar { background: rgba(71,85,105,0.5); }
+        body.dark-mode .kbd-hint { color: #475569; border-top-color: rgba(255,255,255,0.08); }
+        body.dark-mode kbd { background: rgba(30,41,59,0.8); border-color: rgba(71,85,105,0.8); color: #94a3b8; }
+        body.dark-mode .service-search-box { border-bottom-color: rgba(255,255,255,0.1); }
+        body.dark-mode .filter-btn { color: #94a3b8; background: rgba(30,41,59,0.5); border-color: rgba(71,85,105,0.5); }
+        body.dark-mode .filter-btn.active { background: rgba(56,189,248,0.15) !important; color: #38bdf8 !important; border: 1.5px solid #38bdf8 !important; }
+        body.dark-mode .service-btn.active { background: #ff9900 !important; color: #ffffff !important; border-color: #e68a00 !important; }
+        body.dark-mode .q-row-btn.active { background: #475569 !important; color: #ffffff !important; border-color: #334155 !important; font-weight: bold; }
+        body.dark-mode ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); }
+        body.dark-mode ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
+        body.dark-mode #q-search:focus { border-color: #6366f1; background: rgba(15,23,42,0.9); outline: none; }
+
+        .dark-mode-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            padding: 10px 15px;
+            border-radius: 50px;
+            border: none;
+            background: #334155;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
 
-    /* 특정 영역(사이드바)에만 더 얇게 적용하고 싶을 때 */
-    .question-list::-webkit-scrollbar,
-    .service-sidebar::-webkit-scrollbar {
-        width: 6px;
-    }
+        /* ===== 토스트 알림 ===== */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: #1e293b;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+            z-index: 2000;
+            pointer-events: none;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); }
     </style>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBX2DbgQtXrWcYAe21xn5wHafB9JUSE_os",
+            authDomain: "saa-test-8254d.firebaseapp.com",
+            projectId: "saa-test-8254d",
+            storageBucket: "saa-test-8254d.firebasestorage.app",
+            messagingSenderId: "514676672506",
+            appId: "1:514676672506:web:89cfe7a4f224b1ec2e8643"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const provider = new firebase.auth.GoogleAuthProvider();
+
+        let currentUser = null;
+        window._fbUser = null;
+
+        // ===== 로그인 =====
+        window.firebaseLogin = async function() {
+            try {
+                const result = await auth.signInWithPopup(provider);
+                const user = result.user;
+                showToast('✅ ' + user.displayName + '님 로그인!');
+
+                // 로그인 후 기존 localStorage 데이터를 Firebase로 업로드
+                const localWrong = JSON.parse(localStorage.getItem('saa_wrong_notes') || '[]');
+                const localBM = JSON.parse(localStorage.getItem('saa_bookmarks') || '[]');
+                const localHistory = JSON.parse(localStorage.getItem('saa_answer_history') || '{}');
+
+                // Firebase에서 기존 클라우드 데이터 가져오기
+                const ref = db.collection('users').doc(user.uid);
+                const snap = await ref.get();
+
+                if (snap.exists) {
+                    const cloudData = snap.data();
+                    // 로컬 + 클라우드 병합 (중복 제거)
+                    const mergedWrong = [...new Set([...(cloudData.wrong_notes || []), ...localWrong])];
+                    const mergedBM = [...new Set([...(cloudData.bookmarks || []), ...localBM])];
+                    const mergedHistory = { ...(cloudData.answer_history || {}), ...localHistory };
+
+                    await ref.set({
+                        wrong_notes: mergedWrong,
+                        bookmarks: mergedBM,
+                        answer_history: mergedHistory
+                    }, { merge: true });
+
+                    // localStorage도 병합된 데이터로 업데이트
+                    localStorage.setItem('saa_wrong_notes', JSON.stringify(mergedWrong));
+                    localStorage.setItem('saa_bookmarks', JSON.stringify(mergedBM));
+                    localStorage.setItem('saa_answer_history', JSON.stringify(mergedHistory));
+                } else {
+                    // 클라우드에 데이터 없으면 로컬 데이터 그대로 업로드
+                    await ref.set({
+                        wrong_notes: localWrong,
+                        bookmarks: localBM,
+                        answer_history: localHistory
+                    });
+                }
+
+                // UI 갱신
+                if (typeof updateWrongCount === 'function') updateWrongCount();
+                if (typeof renderList === 'function') renderList();
+                if (typeof updateStats === 'function') updateStats();
+                showToast('☁️ 기존 기록 클라우드에 동기화 완료!');
+            } catch(e) {
+                showToast('❌ 로그인 실패: ' + e.message);
+                console.error(e);
+            }
+        };
+
+        window.firebaseLogout = async function() {
+            await auth.signOut();
+            showToast('로그아웃 완료');
+        };
+
+        // ===== 유저 상태 감지 =====
+        auth.onAuthStateChanged(async (user) => {
+            currentUser = user;
+            window._fbUser = user;
+            updateLoginUI(user);
+            if (user) await loadUserData(user.uid);
+        });
+
+        function updateLoginUI(user) {
+            const btn = document.getElementById('login-btn');
+            const info = document.getElementById('user-info');
+            if (!btn) return;
+            if (user) {
+                btn.style.display = 'none';
+                info.style.display = 'flex';
+                document.getElementById('user-name').textContent = user.displayName;
+                document.getElementById('user-avatar').src = user.photoURL || '';
+            } else {
+                btn.style.display = 'block';
+                info.style.display = 'none';
+            }
+        }
+
+        // ===== Firestore 저장 =====
+        window.saveToFirebase = async function(data) {
+            if (!currentUser) return;
+            try {
+                const ref = db.collection('users').doc(currentUser.uid);
+                await ref.set(data, { merge: true });
+            } catch(e) {
+                console.error('저장 실패:', e);
+            }
+        };
+
+        // ===== Firestore 로드 =====
+        async function loadUserData(uid) {
+            try {
+                const ref = db.collection('users').doc(uid);
+                const snap = await ref.get();
+                if (snap.exists) {
+                    const data = snap.data();
+                    // localStorage에 동기화
+                    if (data.wrong_notes) localStorage.setItem('saa_wrong_notes', JSON.stringify(data.wrong_notes));
+                    if (data.bookmarks) localStorage.setItem('saa_bookmarks', JSON.stringify(data.bookmarks));
+                    if (data.answer_history) localStorage.setItem('saa_answer_history', JSON.stringify(data.answer_history));
+                    // UI 갱신
+                    if (typeof updateWrongCount === 'function') updateWrongCount();
+                    if (typeof renderList === 'function') renderList();
+                    if (typeof updateStats === 'function') updateStats();
+                    showToast('☁️ 클라우드 데이터 불러오기 완료!');
+                }
+            } catch(e) {
+                console.error('로드 실패:', e);
+            }
+        }
+
+        // answer_history 자동 저장
+        const origSetItem = localStorage.setItem.bind(localStorage);
+        localStorage.setItem = function(key, value) {
+            origSetItem(key, value);
+            if (key === 'saa_answer_history' && currentUser) {
+                try {
+                    window.saveToFirebase({ answer_history: JSON.parse(value) });
+                } catch(e) {}
+            }
+        };
+    </script>
+
 </head>
 <body>
+<div id="firebase-ui" style="position:fixed; top:16px; left:20px; z-index:1000; display:flex; align-items:center; gap:10px;">
+    <button id="login-btn" onclick="firebaseLogin()" style="padding:8px 16px; border-radius:50px; border:none; background:#4285f4; color:white; cursor:pointer; font-weight:700; font-size:0.82rem; box-shadow:0 2px 8px rgba(0,0,0,0.2); display:flex; align-items:center; gap:6px;">
+        <svg width="16" height="16" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20H24v8h11.3C33.6 33.1 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 2.9l5.7-5.7C34.1 6.5 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20c11 0 19.7-8 19.7-20 0-1.3-.1-2.7-.1-4z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 15.1 18.9 12 24 12c3 0 5.7 1.1 7.8 2.9l5.7-5.7C34.1 6.5 29.3 4 24 4 16.3 4 9.7 8.4 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-1.9 13.5-5l-6.2-5.2C29.4 35.6 26.8 36 24 36c-5.2 0-9.6-2.9-11.3-7.1l-6.6 5C9.6 39.5 16.3 44 24 44z"/><path fill="#1976D2" d="M43.6 20H24v8h11.3c-.9 2.5-2.6 4.6-4.8 6l6.2 5.2C40.5 35.9 44 30.4 44 24c0-1.3-.1-2.7-.4-4z"/></svg>
+        Google 로그인
+    </button>
+    <div id="user-info" style="display:none; align-items:center; gap:8px; background:rgba(255,255,255,0.9); padding:6px 12px 6px 6px; border-radius:50px; box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+        <img id="user-avatar" width="28" height="28" style="border-radius:50%;" src="">
+        <span id="user-name" style="font-size:0.82rem; font-weight:700; color:#334155;"></span>
+        <button onclick="firebaseLogout()" style="background:none; border:none; cursor:pointer; color:#94a3b8; font-size:0.75rem; font-weight:600;">로그아웃</button>
+    </div>
+</div>
+
+<button class="dark-mode-toggle" onclick="toggleDarkMode()" id="mode-btn">🌙 Dark Mode</button>
+<div class="toast" id="toast"></div>
 
 <div class="main-wrapper">
+    <!-- 서비스 필터 사이드바 -->
     <div class="service-sidebar" id="service-sidebar">
-        <div class="service-title">AWS Service Filtering</div>
-        
-        <div class="service-scroll-area">
-            <button class="service-btn active" onclick="filterByService('All')">All Services</button>
+        <div class="service-title">Filter</div>
+        <!-- 탭 -->
+        <div style="display:flex; gap:6px; padding:0 15px 10px 15px; border-bottom:1px solid rgba(226,232,240,0.5);">
+            <button id="tab-service" onclick="switchTab('service')" style="flex:1; padding:8px; border-radius:8px; border:none; background:#ff9900; color:white; cursor:pointer; font-weight:700; font-size:0.82rem;">🔧 서비스</button>
+            <button id="tab-domain" onclick="switchTab('domain')" style="flex:1; padding:8px; border-radius:8px; border:1px solid rgba(203,213,225,0.7); background:rgba(255,255,255,0.5); color:#64748b; cursor:pointer; font-weight:600; font-size:0.82rem;">📚 도메인</button>
+        </div>
+        <div class="service-search-box">
+            <input type="text" id="svc-search" placeholder="검색..." onkeyup="filterServiceButtons()"
+                style="width:100%; padding:8px; border-radius:8px; border:1px solid #cbd5e1;">
+        </div>
+        <!-- 서비스 탭 -->
+        <div class="service-scroll-area" id="tab-panel-service">
+            <button class="service-btn active" onclick="filterByService('All')">
+                <span>All Services</span>
+                <span class="svc-count" id="all-count">0</span>
+            </button>
             <div id="service-list"></div>
         </div>
+        <!-- 도메인 탭 -->
+        <div class="service-scroll-area" id="tab-panel-domain" style="display:none;">
+            <button class="service-btn active" id="domain-all-btn" onclick="filterByDomain(0)">
+                <span>All Domains</span>
+                <span class="svc-count" id="domain-all-count">0</span>
+            </button>
+            <div id="domain-list"></div>
+        </div>
     </div>
+
+    <!-- 퀴즈 메인 -->
     <div class="quiz-container">
-        <h1>AWS SAA-C03 Exam Simulator</h1>
-        
+        <h1>
+            <span>AWS SAA-C03 Exam Simulator</span>
+            <div style="display:flex; align-items:center; gap:12px;">
+                <button class="bookmark-btn" id="bookmark-btn" onclick="toggleBookmark()" title="북마크">🔖</button>
+                <div class="timer-wrap" id="timer-wrap" style="gap:6px;">
+                    <button id="pause-btn" onclick="togglePause()" style="background:none;border:none;cursor:pointer;font-size:1rem;padding:2px 4px;opacity:0.7;" title="일시정지">⏸</button>
+                    ⏱ <span id="timer-display">00:00</span>
+                </div>
+            </div>
+        </h1>
+
+        <!-- 통계 -->
+        <div class="stats-row">
+            <div class="stat-chip correct-chip"><span id="stat-correct">0</span>정답</div>
+            <div class="stat-chip wrong-chip"><span id="stat-wrong">0</span>오답</div>
+            <div class="stat-chip accuracy-chip"><span id="stat-accuracy">-</span>정확도</div>
+            <div class="stat-chip"><span id="stat-total">0</span>풀이</div>
+        </div>
+
+        <!-- 진행률 -->
+        <div class="progress-bar-wrap">
+            <div class="progress-info">
+                <span id="progress-label">0 / 0 문제</span>
+                <span id="progress-pct">0%</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+        </div>
+
         <div id="quiz-content">
             <div id="question-area">
                 <p>데이터 로딩 중...</p>
             </div>
-
             <div id="result">
                 <div id="result-text" style="font-size: 1.1rem; font-weight: bold;"></div>
                 <div id="explanation-text" class="explanation"></div>
+                <div class="note-banner" id="note-banner" onclick="openNoteFromBanner()">📖 <strong id="note-banner-svc"></strong> 서비스 노트 보기 →</div>
             </div>
         </div>
 
@@ -296,205 +978,426 @@
         </div>
     </div>
 
+    <!-- 문제 목록 사이드바 -->
     <div class="sidebar">
         <div class="search-box">
             <input type="text" id="q-search" placeholder="문제 번호 검색..." onkeyup="filterQuestions()">
         </div>
+
+        <!-- 툴바 -->
+        <div class="toolbar">
+            <button class="tool-btn" id="random-btn" onclick="toggleRandom()" title="랜덤 모드">🔀 랜덤</button>
+            <button class="tool-btn" id="bookmark-filter-btn" onclick="setFilter('bookmark')" title="북마크 목록">🔖 북마크</button>
+            <button class="tool-btn reset-btn" onclick="confirmReset()" title="기록 초기화">🗑 초기화</button>
+        </div>
+        <button onclick="openStudyTab()" style="width:100%; margin-bottom:8px; background:linear-gradient(135deg,#10b981,#0ea5e9); color:white; border:none; font-size:0.85rem; padding:10px; border-radius:9px; cursor:pointer; font-weight:700;">📖 서비스 노트 학습</button>
+        <button onclick="openExamModal()" style="width:100%; margin-bottom:10px; background: linear-gradient(135deg,#6366f1,#ff9900); color:white; border:none; font-size:0.85rem; padding:10px; border-radius:9px; cursor:pointer; font-weight:700;">
+            📝 모의고사 시작 (65문제 / 130분)
+        </button>
+
         <div class="filter-container">
             <button id="all-view-btn" class="filter-btn active" onclick="setFilter('all')">전체 문제</button>
             <button id="wrong-view-btn" class="filter-btn" onclick="setFilter('wrong')">오답 노트 (0)</button>
         </div>
         <div id="question-list" class="question-list"></div>
+
+        <div class="kbd-hint">
+            <kbd>←</kbd><kbd>→</kbd> 이동 &nbsp; <kbd>Space</kbd> 정답확인 &nbsp; <kbd>A</kbd>~<kbd>E</kbd> 선택
+        </div>
     </div>
 </div>
 
 <script>
+
+    const QUIZ_DATA = {"flashcards": [{"front": "EC2 스팟 인스턴스", "back": "최대 90% 저렴. AWS가 2분 전 통보 후 회수 가능 → fault-tolerant 작업에 적합", "svc": "Amazon EC2"}, {"front": "EC2 클러스터 배치 그룹", "back": "EC2를 서로 인접하게 배치 → 낮은 지연시간. 한 AZ 내에서만 동작", "svc": "Amazon EC2"}, {"front": "EC2 예측 확장(Predictive Scaling)", "back": "ML로 과거 워크로드 분석 → 용량을 미리 프로비저닝", "svc": "Amazon EC2 Auto Scaling"}, {"front": "EC2 웜 풀(Warm Pool)", "back": "인스턴스를 최대 절전/중지 상태로 미리 준비해두어 빠른 Scale-out 가능", "svc": "Amazon EC2 Auto Scaling"}, {"front": "Lambda 최대 실행 시간", "back": "15분(900초). 15분 초과 작업에는 부적합 → Fargate나 Batch 사용", "svc": "AWS Lambda"}, {"front": "Lambda SnapStart", "back": "Java 런타임의 콜드 스타트 지연 시간을 대폭 감소시키는 기능", "svc": "AWS Lambda"}, {"front": "Lambda@Edge", "back": "CloudFront 엣지 로케이션에서 Lambda 함수를 실행 → 사용자와 가까운 곳에서 처리", "svc": "AWS Lambda"}, {"front": "S3 SSE-C", "back": "암호화는 S3 서버에서 수행, 키는 고객이 관리. AWS는 키를 저장하지 않음. HTTPS 필수", "svc": "Amazon S3"}, {"front": "S3 Transfer Acceleration", "back": "CloudFront 엣지 로케이션 → AWS 백본 네트워크 경로로 전송 속도 50~500% 향상", "svc": "Amazon S3"}, {"front": "S3 Object Lock 규정 준수 모드", "back": "보존 기간 만료까지 루트 사용자 포함 누구도 삭제·덮어쓰기 불가. 법적·규제 요건용", "svc": "Amazon S3"}, {"front": "S3 Object Lock 거버넌스 모드", "back": "특수 권한(s3:BypassGovernanceRetention) 보유자는 잠금 무시 가능. 실수 삭제 방지용", "svc": "Amazon S3"}, {"front": "S3 Glacier Deep Archive 검색 시간", "back": "기본 12시간, 최대 48시간. 1년에 1~2회 액세스하는 데이터용. 가장 저렴", "svc": "Amazon S3 Glacier"}, {"front": "S3 Glacier Flexible Retrieval 옵션", "back": "Expedited 1~5분 / Standard 3~5시간 / Bulk 5~12시간", "svc": "Amazon S3 Glacier"}, {"front": "EBS AZ 종속성", "back": "같은 AZ의 EC2에만 연결 가능. 다른 AZ로 이동하려면 스냅샷 후 복원 필요", "svc": "Amazon EBS"}, {"front": "EFS vs EBS 차이", "back": "EFS: 여러 EC2 동시 접근, Multi-AZ, NFS / EBS: 단일 EC2 연결, 단일 AZ, 블록 스토리지", "svc": "Amazon EFS"}, {"front": "Aurora 글로벌 DB RPO/RTO", "back": "RPO 1초 미만, RTO 1분 미만 → 최고 수준의 DR 솔루션", "svc": "Amazon Aurora"}, {"front": "Aurora 복제본 수", "back": "3개 AZ에 걸쳐 6개 데이터 복제본 저장. 읽기 복제본 최대 15개", "svc": "Amazon Aurora"}, {"front": "RDS Multi-AZ vs 읽기 복제본", "back": "Multi-AZ: 고가용성·장애조치용(Failover) / 읽기 복제본: 읽기 성능 향상·리전 간 DR용", "svc": "Amazon RDS"}, {"front": "RDS Proxy", "back": "앱과 DB 사이 관리형 연결 풀러. Failover 시 다운타임 최소화. Lambda와 함께 자주 사용", "svc": "Amazon RDS"}, {"front": "DynamoDB DAX", "back": "DynamoDB용 인메모리 캐시. 응답 시간을 ms → 마이크로초 단위로 단축", "svc": "Amazon DynamoDB"}, {"front": "DynamoDB 항목 크기 제한", "back": "400KB. 대용량 파일은 S3에 저장 후 URL만 DynamoDB에 저장", "svc": "Amazon DynamoDB"}, {"front": "DynamoDB PITR", "back": "최대 35일 동안 지속 백업, 최근 5분 전까지 특정 시점으로 복원 가능", "svc": "Amazon DynamoDB"}, {"front": "ElastiCache Redis vs Memcached", "back": "Redis: Multi-AZ, 자동 Failover, 읽기 복제본 지원 / Memcached: 단순 캐싱, 고가용성 미지원", "svc": "Amazon ElastiCache"}, {"front": "VPC Gateway Endpoint vs Interface Endpoint", "back": "Gateway: S3·DynamoDB만, 라우팅 테이블 수정, 무료 / Interface(PrivateLink): 대부분 AWS 서비스, ENI 생성, 유료", "svc": "Amazon VPC"}, {"front": "NAT Gateway 위치", "back": "Public Subnet에 설치. Private Subnet 리소스가 인터넷으로 아웃바운드 통신 가능하게 함", "svc": "Amazon VPC"}, {"front": "NACL vs Security Group", "back": "NACL: 서브넷 수준, Stateless(아웃바운드 별도 허용 필요) / SG: 인스턴스 수준, Stateful(응답 자동 허용)", "svc": "Amazon VPC"}, {"front": "Route 53 Latency Based 라우팅", "back": "가장 낮은 지연 시간의 리전으로 라우팅. 지리적 위치가 아닌 실제 네트워크 지연 기준", "svc": "Amazon Route 53"}, {"front": "Route 53 Geo vs Geo-proximity", "back": "Geo: 국가·대륙 기반 라우팅 / Geo-proximity: 지리적 위치 + Bias 값으로 트래픽 이동 조정 가능", "svc": "Amazon Route 53"}, {"front": "CloudFront vs Global Accelerator", "back": "CloudFront: 콘텐츠 캐시(정적), CDN / Global Accelerator: 동적 트래픽 경로 최적화, 고정 Anycast IP", "svc": "Amazon CloudFront"}, {"front": "Global Accelerator Anycast IP", "back": "전 세계 어디서든 동일한 2개의 고정 IP로 접속. AWS 글로벌 네트워크로 라우팅", "svc": "AWS Global Accelerator"}, {"front": "SQS Standard vs FIFO", "back": "Standard: 무제한 처리량, 순서 미보장 / FIFO: 순서 보장, 초당 300개 제한, 정확히 한 번 전송", "svc": "Amazon SQS"}, {"front": "SQS 가시성 시간 제한(Visibility Timeout)", "back": "처리 중 다른 소비자에게 메시지 숨김. 시간 내 처리 실패 시 다시 큐에 등장", "svc": "Amazon SQS"}, {"front": "SNS Fan-Out 패턴", "back": "SNS 1개 주제 → 여러 SQS 대기열에 동시 전송. 병렬 처리·분산 처리에 활용", "svc": "Amazon SNS"}, {"front": "IAM Role vs User", "back": "User: 영구 자격증명 / Role: 임시 자격증명. EC2·Lambda·다른 계정이 Assume하여 권한 획득", "svc": "AWS IAM"}, {"front": "SCP(서비스 제어 정책)", "back": "Organizations에서 OU·계정에 최대 권한 경계 설정. SCP는 권한을 부여하지 않고 제한만 함", "svc": "AWS IAM"}, {"front": "KMS 고객 관리형 키(CMK)", "back": "사용자가 생성·관리. 1년 주기 자동 순환 활성화/비활성화 가능. 키 정책으로 접근 제어", "svc": "AWS KMS"}, {"front": "KMS vs CloudHSM", "back": "KMS: 다중 테넌트(공유), 관리형 / CloudHSM: 단일 테넌트(전용 하드웨어), FIPS 140-2 레벨 3, 완전한 키 제어권", "svc": "AWS KMS"}, {"front": "GuardDuty 데이터 소스", "back": "VPC Flow Logs, CloudTrail, DNS 로그를 ML로 분석하여 악의적 활동 탐지", "svc": "Amazon GuardDuty"}, {"front": "Inspector vs Macie vs GuardDuty", "back": "Inspector: EC2·컨테이너 취약점 스캔 / Macie: S3 민감 데이터(PII) 탐지 / GuardDuty: 악의적 활동 탐지", "svc": "Amazon GuardDuty"}, {"front": "Kinesis Data Streams vs Firehose", "back": "KDS: 실시간 수집·저장·처리, 소비자가 직접 처리 / KDF: 자동으로 S3·Redshift·OpenSearch로 전달", "svc": "Amazon Kinesis"}, {"front": "RTO vs RPO", "back": "RTO: 서비스 복구까지 걸리는 시간(용량 확보가 핵심) / RPO: 허용 가능한 데이터 손실량(복제 빈도가 핵심)", "svc": "Amazon Aurora"}, {"front": "DR 전략 4가지 순서 (빠른 RTO 순)", "back": "Multi-Site Active/Active → Warm Standby → Pilot Light → Backup & Restore", "svc": "Amazon RDS"}, {"front": "AWS Glue 크롤러", "back": "데이터 소스를 스캔하여 스키마·메타데이터 자동 추론 → Data Catalog에 등록", "svc": "AWS Glue"}, {"front": "Athena Federated Query", "back": "Lambda 함수를 통해 DynamoDB·RDS 등 다른 데이터 소스도 쿼리 가능. 결과는 S3에 저장", "svc": "Amazon Athena"}, {"front": "CloudWatch vs CloudTrail", "back": "CloudWatch: 지표·로그 모니터링(What is happening) / CloudTrail: API 호출 감사(Who did what)", "svc": "Amazon CloudWatch"}, {"front": "Direct Connect 특징", "back": "전용 사설 물리 회선. 인터넷 미경유, 암호화 없음. VPN보다 안정적·일관된 지연시간", "svc": "AWS Direct Connect"}, {"front": "NLB만의 특징", "back": "AZ별 EIP 연결로 고정 공인 IP 제공 가능. 유일한 LB 유형. L4 TCP/UDP. 클라이언트 원본 IP 보존", "svc": "Elastic Load Balancing"}, {"front": "ALB vs NLB 선택 기준", "back": "ALB: HTTP/HTTPS, URL 경로 기반 라우팅, 마이크로서비스 / NLB: TCP/UDP, 초고성능, 고정 IP 필요 시", "svc": "Elastic Load Balancing"}, {"front": "Storage Gateway 3가지 유형", "back": "File Gateway(S3를 NFS/SMB로) / Volume Gateway(S3를 iSCSI 블록으로) / Tape Gateway(S3를 가상 테이프로)", "svc": "AWS Storage Gateway"}, {"front": "Secrets Manager 핵심 기능", "back": "자동 비밀번호 교체(Rotation). vs Parameter Store: 단순 설정값 저장 vs 비밀번호 자동 교체·보안 특화", "svc": "AWS Secrets Manager"}, {"front": "Transit Gateway 역할", "back": "수십~수백 개 VPC와 온프레미스를 중앙 허브에 연결. 허브 앤 스포크 모델. 최대 5,000개 VPC", "svc": "AWS Transit Gateway"}, {"front": "Cognito User Pools vs Identity Pools", "back": "User Pools: 앱 사용자 로그인·인증 / Identity Pools: 소셜 로그인 사용자에게 임시 AWS 자격증명 발급", "svc": "Amazon Cognito"}], "blanks": [{"svc": "Amazon EC2", "q": "[Amazon EC2] 온디맨드: ___ 없이 초 단위 과금. 가장 비쌈", "a": "약정", "hint": "Amazon EC2 (Elastic Compute Cloud) - 온디맨드"}, {"svc": "Amazon EC2", "q": "[Amazon EC2] 스팟: ___ 90% 저렴. AWS가 2분 전 통보 후 회수 가능 → fault-tolerant 작업에 적합", "a": "최대", "hint": "Amazon EC2 (Elastic Compute Cloud) - 스팟"}, {"svc": "Amazon EC2", "q": "[Amazon EC2] 예약: ___ 약정, 최대 72% 할인", "a": "1년3년", "hint": "Amazon EC2 (Elastic Compute Cloud) - 예약"}, {"svc": "Amazon EC2", "q": "[Amazon EC2] 전용: ___ 전용 물리 하드웨어. 라이선스/규정 준수 요건 시", "a": "고객", "hint": "Amazon EC2 (Elastic Compute Cloud) - 전용"}, {"svc": "Amazon EC2", "q": "[Amazon EC2] 컴퓨팅 절약 플랜: ___ 등 넓은 범위 적용, 높은 유연성", "a": "EC2FargateLambda", "hint": "Amazon EC2 (Elastic Compute Cloud) - 컴퓨팅 절약 플랜"}, {"svc": "AWS Lambda", "q": "[AWS Lambda] 동시 실행: 기본 한도 ___000개 (요청 시 상향 가능)", "a": "1,", "hint": "AWS Lambda"}, {"svc": "Amazon S3", "q": "[Amazon S3] SSE-S3(AWS키), SSE-___(KMS키), SSE-C(고객키, HTTPS 필수)", "a": "KMS", "hint": "Amazon S3 (Simple Storage Service)"}, {"svc": "Amazon S3", "q": "[Amazon S3] Transfer Acceleration: 엣지 → AWS 백본으로 ___~500% 향상", "a": "50", "hint": "Amazon S3 (Simple Storage Service)"}, {"svc": "Amazon S3", "q": "[Amazon S3] S3 Standard: ___ 액세스, 3개 이상 AZ 복제", "a": "밀리초", "hint": "Amazon S3 (Simple Storage Service) - S3 Standard"}, {"svc": "Amazon S3", "q": "[Amazon S3] Intelligent-Tiering: ___ 자동으로 계층 간 이동", "a": "AWS가", "hint": "Amazon S3 (Simple Storage Service) - Intelligent-Tiering"}, {"svc": "Amazon S3", "q": "[Amazon S3] Standard-IA: ___ 시 추가 요금", "a": "검색", "hint": "Amazon S3 (Simple Storage Service) - Standard-IA"}, {"svc": "Amazon S3", "q": "[Amazon S3] One Zone-IA: ___ AZ, AZ 장애 시 손실 가능", "a": "단일", "hint": "Amazon S3 (Simple Storage Service) - One Zone-IA"}, {"svc": "Amazon S3", "q": "[Amazon S3] Glacier Instant: ___ 검색", "a": "밀리초", "hint": "Amazon S3 (Simple Storage Service) - Glacier Instant"}, {"svc": "Amazon S3", "q": "[Amazon S3] Glacier Flexible: ___ / 3~5시간 / 5~12시간", "a": "15분", "hint": "Amazon S3 (Simple Storage Service) - Glacier Flexible"}, {"svc": "Amazon S3", "q": "[Amazon S3] Glacier Deep Archive: ___ 최대 48시간. 가장 저렴", "a": "12시간", "hint": "Amazon S3 (Simple Storage Service) - Glacier Deep Archive"}, {"svc": "Amazon S3 Glacier", "q": "[Amazon S3 Glacier] Glacier Flexible: Expedited ___~5분 / Standard 3~5시간 / Bulk 5~12시간", "a": "1", "hint": "Amazon S3 Glacier"}, {"svc": "Amazon EBS", "q": "[Amazon EBS] ___:1 연결: 기본적으로 하나의 볼륨 = 하나의 인스턴스 (예외: io1/io2 다중 연결)", "a": "1", "hint": "Amazon EBS (Elastic Block Storage)"}, {"svc": "Amazon EFS", "q": "[Amazon EFS] 페타바이트 지원, ___v4", "a": "NFS", "hint": "Amazon EFS (Elastic File System)"}, {"svc": "Amazon FSx", "q": "[Amazon FSx] FSx for Windows: ___ 프로토콜, Active Directory 지원", "a": "SMB", "hint": "Amazon FSx - FSx for Windows"}, {"svc": "Amazon FSx", "q": "[Amazon FSx] FSx for Lustre: ___ 렌더링용 초고성능 병렬 파일 시스템, S3 직접 연동", "a": "HPCML미디어", "hint": "Amazon FSx - FSx for Lustre"}, {"svc": "Amazon FSx", "q": "[Amazon FSx] FSx for NetApp ONTAP: ___ 지원, NetApp SnapMirror 복제", "a": "SMBNFSiSCSI", "hint": "Amazon FSx - FSx for NetApp ONTAP"}, {"svc": "Amazon FSx", "q": "[Amazon FSx] FSx for OpenZFS: ___ 스냅샷·복제, NFS 프로토콜", "a": "고성능", "hint": "Amazon FSx - FSx for OpenZFS"}, {"svc": "AWS Storage Gateway", "q": "[AWS Storage Gateway] File Gateway: ___ 또는 NFS / S3를 파일 공유처럼 사용", "a": "SMB", "hint": "AWS Storage Gateway - File Gateway"}, {"svc": "AWS Storage Gateway", "q": "[AWS Storage Gateway] Volume Gateway: ___ iSCSI 볼륨처럼 사용 + 저지연 캐시", "a": "S3를", "hint": "AWS Storage Gateway - Volume Gateway"}, {"svc": "AWS Storage Gateway", "q": "[AWS Storage Gateway] Tape Gateway: ___ 가상 테이프처럼 사용", "a": "S3를", "hint": "AWS Storage Gateway - Tape Gateway"}, {"svc": "Amazon RDS", "q": "[Amazon RDS] 암호화: 저장=___, 전송=SSL/TLS", "a": "KMS", "hint": "Amazon RDS (Relational Database Service)"}, {"svc": "Amazon ElastiCache", "q": "[Amazon ElastiCache] Memcached: ___ 미지원, 단순 캐싱", "a": "고가용성", "hint": "Amazon ElastiCache - Memcached"}, {"svc": "Amazon ElastiCache", "q": "[Amazon ElastiCache] Redis: ___ 자동 Failover, 읽기 전용 복제본 지원", "a": "MultiAZ", "hint": "Amazon ElastiCache - Redis"}, {"svc": "Amazon VPC", "q": "[Amazon VPC] CIDR: VPC가 사용할 IP 주소 범위 정의 (예: 10.0.0.0/___)", "a": "16", "hint": "Amazon VPC (Virtual Private Cloud)"}, {"svc": "Amazon VPC", "q": "[Amazon VPC] Interface Endpoint(PrivateLink): CloudWatch·SNS·SQS·___ 등 연결", "a": "KMS", "hint": "Amazon VPC (Virtual Private Cloud)"}, {"svc": "Amazon VPC", "q": "[Amazon VPC] NACL: 서브넷 수준, ___ / Security Group: 인스턴스 수준, Stateful", "a": "Stateless", "hint": "Amazon VPC (Virtual Private Cloud)"}, {"svc": "Amazon Route 53", "q": "[Amazon Route 53] Latency Based: ___ 낮은 지연 시간의 리전으로 라우팅", "a": "가장", "hint": "Amazon Route 53 - Latency Based"}, {"svc": "Amazon Route 53", "q": "[Amazon Route 53] Weighted Round Robin: ___ 가중치(비율)에 따라 트래픽 분산", "a": "지정", "hint": "Amazon Route 53 - Weighted Round Robin"}, {"svc": "Amazon Route 53", "q": "[Amazon Route 53] DNS Failover: ___ 체크로 Primary 비정상 시 Secondary로 자동 전환", "a": "헬스", "hint": "Amazon Route 53 - DNS Failover"}, {"svc": "Amazon Route 53", "q": "[Amazon Route 53] Geo Routing: ___ 지리적 위치(국가·대륙) 기반 라우팅", "a": "사용자", "hint": "Amazon Route 53 - Geo Routing"}, {"svc": "Amazon Route 53", "q": "[Amazon Route 53] Geo-proximity: ___ 위치 기반 + 선택적으로 트래픽 이동 가능", "a": "지리적", "hint": "Amazon Route 53 - Geo-proximity"}, {"svc": "Amazon Route 53", "q": "[Amazon Route 53] 다중값 응답: ___ 정상 엔드포인트 IP를 반환, 클라이언트가 무작위 선택", "a": "여러", "hint": "Amazon Route 53 - 다중값 응답"}, {"svc": "Elastic Load Balancing", "q": "[Elastic Load Balancing] ALB: ___ HTTP/HTTPS, URL 경로·호스트 기반 라우팅, 마이크로서비스에 적합", "a": "L7", "hint": "Elastic Load Balancing (ELB) - ALB"}, {"svc": "Elastic Load Balancing", "q": "[Elastic Load Balancing] NLB: ___ TCP/UDP, 초고성능·낮은 지연, AZ별 EIP로 고정 공인 IP 제공", "a": "L4", "hint": "Elastic Load Balancing (ELB) - NLB"}, {"svc": "Elastic Load Balancing", "q": "[Elastic Load Balancing] GWLB: ___ 방화벽·IPS·DPI 보안 어플라이언스 배포용", "a": "L3", "hint": "Elastic Load Balancing (ELB) - GWLB"}, {"svc": "Amazon SQS", "q": "[Amazon SQS] 긴 폴링(Long ___): 빈 큐 시 메시지 올 때까지 대기 → API 호출 횟수 감소", "a": "Polling", "hint": "Amazon SQS (Simple Queue Service)"}, {"svc": "Amazon Kinesis", "q": "[Amazon Kinesis] Kinesis Data Streams: ___ 데이터 수집·저장·처리. 샤드 분할, 기본 보존 24시간", "a": "실시간", "hint": "Amazon Kinesis - Kinesis Data Streams"}, {"svc": "Amazon Kinesis", "q": "[Amazon Kinesis] Kinesis Data Firehose: ___ 데이터를 S3·Redshift·OpenSearch 등으로 전송. 배치 처리", "a": "실시간", "hint": "Amazon Kinesis - Kinesis Data Firehose"}, {"svc": "Amazon Kinesis", "q": "[Amazon Kinesis] Kinesis Data Analytics: ___ 스트리밍 데이터를 SQL 또는 Apache Flink로 분석", "a": "실시간", "hint": "Amazon Kinesis - Kinesis Data Analytics"}, {"svc": "Amazon API Gateway", "q": "[Amazon API Gateway] AWS WAF, ___, Cognito로 액세스 제어", "a": "IAM", "hint": "Amazon API Gateway"}, {"svc": "AWS IAM", "q": "[AWS IAM] ___ Identity Center(SSO): 한 번의 로그인으로 여러 AWS 계정·앱 액세스", "a": "IAM", "hint": "AWS IAM"}, {"svc": "AWS KMS", "q": "[AWS KMS] AWS 관리형 키: 약 ___ 주기 자동 순환 (사용자 제어 불가)", "a": "3년", "hint": "AWS KMS (Key Management Service) - AWS 관리형 키"}, {"svc": "AWS KMS", "q": "[AWS KMS] 고객 관리형 키(CMK): ___ 주기 자동 순환 활성화/비활성화 가능", "a": "1년", "hint": "AWS KMS (Key Management Service) - 고객 관리형 키(CMK)"}, {"svc": "AWS KMS", "q": "[AWS KMS] 가져온 키 자료: ___ 순환 미지원, 수동 교체", "a": "자동", "hint": "AWS KMS (Key Management Service) - 가져온 키 자료"}, {"svc": "AWS Secrets Manager", "q": "[AWS Secrets Manager] ___로 암호화", "a": "KMS", "hint": "AWS Secrets Manager"}, {"svc": "AWS Transit Gateway", "q": "[AWS Transit Gateway] 최대 ___000개 VPC 연결 가능", "a": "5,", "hint": "AWS Transit Gateway"}, {"svc": "Amazon ECS / EKS", "q": "[Amazon ECS / EKS] ECS: ___ 고유 컨테이너 오케스트레이션. IAM·VPC·ELB 통합 우수. ECS Anywhere로 온프레미스 확장", "a": "AWS", "hint": "Amazon ECS / EKS / ECR - ECS"}, {"svc": "Amazon ECS / EKS", "q": "[Amazon ECS / EKS] EKS: ___ Kubernetes. AWS가 컨트롤 플레인 관리. EKS Anywhere로 온프레미스 실행", "a": "관리형", "hint": "Amazon ECS / EKS / ECR - EKS"}, {"svc": "Amazon ECS / EKS", "q": "[Amazon ECS / EKS] ECR: ___ Docker 레지스트리. 자동 CVE 취약점 스캔", "a": "프라이빗", "hint": "Amazon ECS / EKS / ECR - ECR"}, {"svc": "Amazon Redshift", "q": "[Amazon Redshift] ___ 키를 사용한 서버 측/클라이언트 측 암호화 모두 지원", "a": "KMS", "hint": "Amazon Redshift"}, {"svc": "AWS Cost Management", "q": "[AWS Cost Management] Cost Explorer: ___ 비용 패턴 분석 및 미래 비용 예측 (최대 12개월)", "a": "과거현재", "hint": "AWS Cost Management - Cost Explorer"}, {"svc": "AWS Cost Management", "q": "[AWS Cost Management] Budgets: ___ 예산 설정·모니터링. 임계값 도달 시 자동 알림", "a": "비용사용량", "hint": "AWS Cost Management - Budgets"}, {"svc": "AWS Cost Management", "q": "[AWS Cost Management] Cost Anomaly Detection: ___ 예상치 못한 급격한 비용 상승을 실시간 감지·알림", "a": "ML로", "hint": "AWS Cost Management - Cost Anomaly Detection"}, {"svc": "AWS Cost Management", "q": "[AWS Cost Management] Trusted Advisor: ___ 절감·성능 향상·보안 강화 모범 사례 권장 사항 제공", "a": "비용", "hint": "AWS Cost Management - Trusted Advisor"}, {"svc": "AWS PrivateLink", "q": "[AWS PrivateLink] SQS·SNS·CloudWatch·___ 등 대부분 AWS 서비스 지원", "a": "KMS", "hint": "AWS PrivateLink"}, {"svc": "AWS VPN", "q": "[AWS VPN] Client VPN: ___ 사용자(재택근무자)가 VPC·온프레미스에 안전하게 접속. 임시 연결", "a": "개인", "hint": "AWS VPN - Client VPN"}, {"svc": "AWS VPN", "q": "[AWS VPN] Site-to-Site VPN: ___ ↔ VPC를 인터넷 기반 IPsec 암호화 터널로 연결. 지속적 연결. 저비용", "a": "온프레미스", "hint": "AWS VPN - Site-to-Site VPN"}, {"svc": "Amazon Comprehend / Rekognition", "q": "[Amazon Comprehend / Rekognition] Comprehend: ___ 의미 분석 → 감정·핵심 문구·개체(이름·장소) 추출 (NLP)", "a": "텍스트", "hint": "Amazon Comprehend / Rekognition - Comprehend"}, {"svc": "Amazon Comprehend / Rekognition", "q": "[Amazon Comprehend / Rekognition] Rekognition: ___ 분석 → 객체·장면·얼굴·유명인·텍스트 식별, 부적절 콘텐츠 감지", "a": "이미지", "hint": "Amazon Comprehend / Rekognition - Rekognition"}, {"svc": "Amazon Comprehend / Rekognition", "q": "[Amazon Comprehend / Rekognition] Rekognition Video: ___ 영상·실시간 비디오 스트림 분석", "a": "저장", "hint": "Amazon Comprehend / Rekognition - Rekognition Video"}, {"svc": "AWS Control Tower", "q": "[AWS Control Tower] Organizations·___ Identity Center·Config 등 자동 설정", "a": "IAM", "hint": "AWS Control Tower"}], "matchings": [{"desc": "AWS 클라우드의 가상 서버(VM). 가장 기본적인 IaaS. 사용자가 OS부터 모든 것을 직접 설치하고 제어.", "answer": "Amazon EC2", "options": ["AWS Organizations", "Amazon ElastiCache", "Amazon Redshift", "Amazon EC2"]}, {"desc": "트래픽/지표에 따라 EC2 수를 자동으로 늘리거나(Scale-out) 줄임(Scale-in).", "answer": "Amazon EC2 Auto Scaling", "options": ["Amazon EC2 Auto Scaling", "Amazon API Gateway", "Amazon EC2", "Amazon Route 53"]}, {"desc": "서버 없이 이벤트 기반으로 코드 실행. 실행 시간(ms)만큼만 과금.", "answer": "AWS Lambda", "options": ["Amazon S3", "Amazon SQS", "Amazon ECS / EKS", "AWS Lambda"]}, {"desc": "무한대에 가까운 용량의 인터넷 기반 객체(파일) 스토리지. HTTP/HTTPS(URL)로 파일(객체) 단위 액세스.", "answer": "Amazon S3", "options": ["Amazon S3", "AWS Snow Family", "Amazon Neptune", "AWS Config"]}, {"desc": "장기 아카이브용 저비용 스토리지. 자주 액세스하지 않는 데이터에 최적.", "answer": "Amazon S3 Glacier", "options": ["Amazon CloudWatch", "Amazon Athena", "Amazon S3 Glacier", "AWS Global Accelerator"]}, {"desc": "EC2 인스턴스에 연결하는 네트워크 연결 가상 하드 디스크 (블록 스토리지).", "answer": "Amazon EBS", "options": ["AWS Transfer Family", "Amazon EBS", "AWS Storage Gateway", "Amazon EMR"]}, {"desc": "여러 EC2 인스턴스가 동시에 액세스하는 공유 파일 스토리지 (NFS 프로토콜).", "answer": "Amazon EFS", "options": ["Amazon SQS", "Amazon QuickSight", "Amazon EFS", "Amazon Neptune"]}, {"desc": "특정 상용/오픈소스 파일 시스템을 위한 완전 관리형 서비스.", "answer": "Amazon FSx", "options": ["AWS Service Catalog", "AWS Organizations", "Amazon CloudFront", "Amazon FSx"]}, {"desc": "온프레미스와 AWS 클라우드 스토리지를 연결하는 하이브리드 게이트웨이. 코드 수정 불필요.", "answer": "AWS Storage Gateway", "options": ["Amazon Neptune", "AWS Storage Gateway", "AWS Certificate Manager", "AWS Security Hub"]}, {"desc": "MySQL, PostgreSQL, Oracle, SQL Server 등 지원. OS 패치·백업·장애 조치 등 AWS가 처리. SSH 접속 불가.", "answer": "Amazon RDS", "options": ["AWS VPN", "Amazon RDS", "Amazon EMR", "AWS CloudTrail"]}, {"desc": "AWS가 클라우드 최적화로 개발한 고성능 RDB. MySQL·PostgreSQL 완벽 호환.", "answer": "Amazon Aurora", "options": ["Amazon Aurora", "Amazon Redshift", "Amazon RDS", "Amazon SES"]}, {"desc": "AWS 대표 서버리스 NoSQL Key-Value DB. 어떤 규모에서든 10ms 미만의 빠른 응답 속도.", "answer": "Amazon DynamoDB", "options": ["AWS VPN", "AWS Control Tower", "AWS Certificate Manager", "Amazon DynamoDB"]}, {"desc": "Redis 또는 Memcached를 지원하는 관리형 인메모리 캐시. DB 부하 감소, 응답 속도 향상.", "answer": "Amazon ElastiCache", "options": ["Amazon EC2 Auto Scaling", "Amazon Comprehend / Rekognition", "Amazon ElastiCache", "Amazon Kinesis"]}, {"desc": "사용자 AWS 계정 전용 격리된 가상 사설 네트워크.", "answer": "Amazon VPC", "options": ["AWS Transfer Family", "Amazon Aurora", "Amazon VPC", "AWS Fargate"]}, {"desc": "AWS CDN 서비스. 전 세계 엣지 로케이션에 콘텐츠 캐시. 출처(Origin): 주로 S3, ELB, EC2.", "answer": "Amazon CloudFront", "options": ["AWS Global Accelerator", "Amazon CloudFront", "Amazon Route 53", "Amazon EFS"]}, {"desc": "AWS 글로벌 네트워크를 활용하여 앱까지의 네트워크 경로 최적화. 두 개의 고정 Anycast IP 제공.", "answer": "AWS Global Accelerator", "options": ["AWS Global Accelerator", "AWS Service Catalog", "Amazon SNS", "Amazon SQS"]}, {"desc": "들어오는 트래픽을 여러 대상에 자동 분산 → 고가용성·확장성 제공.", "answer": "Elastic Load Balancing", "options": ["Amazon EFS", "Elastic Load Balancing", "Amazon Route 53", "AWS Direct Connect"]}, {"desc": "메시지를 비동기적으로 주고받아 시스템을 분리(Decouple)하는 메시징 큐. Polling 기반.", "answer": "Amazon SQS", "options": ["Amazon ECS / EKS", "AWS Transfer Family", "Amazon QuickSight", "Amazon SQS"]}, {"desc": "하나의 Topic에 메시지 게시 → 구독자 다수에게 즉시 전달하는 Pub/Sub 서비스. Push 기반.", "answer": "Amazon SNS", "options": ["Amazon EC2", "Amazon SNS", "Amazon VPC", "Elastic Load Balancing"]}, {"desc": "대규모 실시간 데이터 스트리밍 서비스 모음.", "answer": "Amazon Kinesis", "options": ["Amazon Kinesis", "AWS PrivateLink", "AWS Step Functions", "AWS CloudTrail"]}, {"desc": "REST API·WebSocket API를 생성·배포·관리하는 완전 관리형 서비스.", "answer": "Amazon API Gateway", "options": ["Amazon RDS", "Amazon API Gateway", "AWS Config", "AWS Elastic Beanstalk"]}, {"desc": "AWS 리소스 액세스를 안전하게 제어. '누가' '무엇을' '어떻게' 할 수 있는지 Policy로 정의.", "answer": "AWS IAM", "options": ["Amazon ECS / EKS", "Amazon DynamoDB", "AWS IAM", "Amazon OpenSearch"]}, {"desc": "관리형 암호화 키 생성·제어 서비스. EBS·S3·RDS 등 대부분 AWS 서비스와 통합.", "answer": "AWS KMS", "options": ["AWS IAM", "AWS KMS", "AWS Control Tower", "AWS Organizations"]}, {"desc": "데이터베이스 자격 증명·API 키 등을 안전하게 저장.", "answer": "AWS Secrets Manager", "options": ["Amazon Athena", "Amazon Kinesis", "AWS VPN", "AWS Secrets Manager"]}, {"desc": "WAF: L7 웹 애플리케이션 방화벽. Shield: DDoS 방어.", "answer": "AWS WAF / Shield", "options": ["AWS Direct Connect", "Amazon VPC", "AWS CloudTrail", "AWS WAF / Shield"]}, {"desc": "ML을 사용해 VPC Flow Logs·CloudTrail·DNS 로그를 지속 모니터링하여 악의적 활동 탐지·경고.", "answer": "Amazon GuardDuty", "options": ["Amazon CloudWatch", "AWS Control Tower", "Amazon GuardDuty", "AWS PrivateLink"]}, {"desc": "S3 데이터를 ML로 스캔하여 민감 데이터(PII: 신용카드 번호·주민번호 등) 식별·분류·모니터링.", "answer": "Amazon Macie", "options": ["Amazon S3 Glacier", "Amazon EC2 Auto Scaling", "Amazon Neptune", "Amazon Macie"]}, {"desc": "웹·모바일 앱을 위한 사용자 인증/인가 서비스.", "answer": "Amazon Cognito", "options": ["Amazon Cognito", "AWS Certificate Manager", "AWS Storage Gateway", "AWS DataSync"]}, {"desc": "AWS 리소스·앱의 지표(Metrics)·로그(Logs) 수집·추적·경보하는 통합 모니터링 서비스.", "answer": "Amazon CloudWatch", "options": ["Amazon FSx", "Elastic Load Balancing", "Amazon VPC", "Amazon CloudWatch"]}, {"desc": "AWS 계정의 모든 API 호출 이력을 기록하는 감사(Audit) 서비스.", "answer": "AWS CloudTrail", "options": ["AWS CloudTrail", "AWS DataSync", "AWS Lake Formation", "Amazon Redshift"]}, {"desc": "코드로 AWS 리소스(인프라)를 템플릿으로 정의하고 자동·반복적으로 배포·관리하는 서비스 (IaC).", "answer": "AWS CloudFormation", "options": ["Amazon CloudFront", "Amazon OpenSearch", "AWS Lambda", "AWS CloudFormation"]}, {"desc": "온프레미스 ↔ AWS 간 전용 사설 물리 회선(광케이블) 연결. 인터넷 미경유 → 안정적·빠름.", "answer": "AWS Direct Connect", "options": ["AWS Direct Connect", "Amazon ElastiCache", "AWS Secrets Manager", "AWS Storage Gateway"]}, {"desc": "수십~수백 개의 VPC와 온프레미스 네트워크를 중앙 허브에 연결하는 라우팅 허브.", "answer": "AWS Transit Gateway", "options": ["Amazon SES", "AWS Batch", "AWS Control Tower", "AWS Transit Gateway"]}, {"desc": "컨테이너 오케스트레이션 및 레지스트리 서비스.", "answer": "Amazon ECS / EKS", "options": ["AWS Security Hub", "Amazon S3", "Amazon EC2", "Amazon ECS / EKS"]}, {"desc": "컨테이너를 위한 서버리스 컴퓨팅 엔진. ECS/EKS 사용 시 EC2 워커 노드를 직접 관리할 필요 없음.", "answer": "AWS Fargate", "options": ["Amazon Macie", "AWS Global Accelerator", "AWS Fargate", "Amazon CloudFront"]}, {"desc": "완전 서버리스 ETL(추출·변환·로드) 서비스.", "answer": "AWS Glue", "options": ["Amazon QuickSight", "Amazon ElastiCache", "AWS IAM", "AWS Glue"]}, {"desc": "표준 SQL을 사용하여 S3 데이터를 쿼리하는 서버리스 대화형 쿼리 서비스.", "answer": "Amazon Athena", "options": ["AWS Organizations", "Amazon DynamoDB", "Amazon Athena", "Amazon Neptune"]}, {"desc": "다양한 데이터 소스를 창고처럼 저장하여 분석하는 데이터 웨어하우스.", "answer": "Amazon Redshift", "options": ["Amazon Redshift", "Amazon S3", "Amazon DynamoDB", "AWS Security Hub"]}, {"desc": "온프레미스 스토리지(NFS/SMB) ↔ AWS 스토리지(S3·EFS 등) 간 온라인 데이터 전송 자동화·가속화.", "answer": "AWS DataSync", "options": ["AWS Certificate Manager", "AWS PrivateLink", "AWS Snow Family", "AWS DataSync"]}, {"desc": "온프레미스 DB → AWS 또는 AWS 내 DB 간 마이그레이션. 가동 중지 시간 최소화.", "answer": "AWS DMS", "options": ["AWS DMS", "Amazon Macie", "Amazon EFS", "AWS Step Functions"]}, {"desc": "다양한 AWS 서비스(EBS, EFS, RDS, DynamoDB 등)의 백업을 중앙에서 자동화·관리.", "answer": "AWS Backup", "options": ["AWS Snow Family", "AWS Lambda", "AWS Backup", "Amazon CloudWatch"]}, {"desc": "AWS 비용 모니터링·분석·최적화 서비스 모음.", "answer": "AWS Cost Management", "options": ["AWS Glue", "Amazon S3", "Amazon RDS", "AWS Cost Management"]}, {"desc": "Elasticsearch 후속 버전 기반 완전 관리형 검색·분석 서비스.", "answer": "Amazon OpenSearch", "options": ["AWS Fargate", "Amazon SNS", "Amazon OpenSearch", "AWS Organizations"]}, {"desc": "Hadoop·Spark·Hive 등 빅데이터 프레임워크로 대량 데이터를 병렬 분석·처리.", "answer": "Amazon EMR", "options": ["Amazon EMR", "Amazon SQS", "Amazon EFS", "AWS Control Tower"]}, {"desc": "대용량 데이터를 AWS로 오프라인 전송하거나 엣지 컴퓨팅용 물리 장치.", "answer": "AWS Snow Family", "options": ["AWS CloudTrail", "AWS Snow Family", "AWS WAF / Shield", "Amazon Kinesis"]}, {"desc": "SFTP 같은 전통적 파일 전송 방식을 쓰되, 파일은 S3에 저장.", "answer": "AWS Transfer Family", "options": ["AWS Secrets Manager", "Amazon S3", "AWS Transfer Family", "AWS Fargate"]}, {"desc": "VPC 엔드포인트를 사용하여 AWS 서비스·다른 계정의 서비스에 인터넷 없이 프라이빗 액세스.", "answer": "AWS PrivateLink", "options": ["AWS PrivateLink", "AWS DataSync", "Amazon VPC", "AWS Security Hub"]}, {"desc": "온프레미스 ↔ VPC를 인터넷을 통해 IPsec 암호화 터널로 연결.", "answer": "AWS VPN", "options": ["AWS KMS", "AWS VPN", "AWS Batch", "AWS Transit Gateway"]}, {"desc": "그래프(Graph) 데이터를 위한 완전 관리형 DB. 소셜 네트워크 관계, 사기 탐지(Fraud Detection) 등 복잡한 연결 패턴에 특화.", "answer": "Amazon Neptune", "options": ["AWS Transfer Family", "Amazon Neptune", "AWS IAM", "AWS Security Hub"]}, {"desc": "여러 AWS 서비스를 시각적 워크플로우로 조율하는 서버리스 오케스트레이터.", "answer": "AWS Step Functions", "options": ["AWS Security Hub", "Amazon QuickSight", "AWS Step Functions", "AWS Backup"]}, {"desc": "대규모 이메일 발송을 위한 관리형 서비스.", "answer": "Amazon SES", "options": ["Amazon Macie", "Amazon SES", "AWS DMS", "AWS Secrets Manager"]}, {"desc": "무료 공인 SSL/TLS 인증서 발급·자동 갱신.", "answer": "AWS Certificate Manager", "options": ["AWS Certificate Manager", "Amazon Cognito", "AWS Config", "Amazon EC2 Auto Scaling"]}, {"desc": "AWS 리소스 구성을 추적·감사하고 시간에 따른 변경 사항 기록.", "answer": "AWS Config", "options": ["AWS Batch", "AWS Config", "AWS Storage Gateway", "AWS Elastic Beanstalk"]}, {"desc": "AWS 계정 리소스 구성을 스캔하여 비용 절감·성능 향상·보안 강화 모범 사례 권장 사항 제공.", "answer": "AWS Trusted Advisor", "options": ["AWS IAM", "AWS Trusted Advisor", "AWS Global Accelerator", "AWS Secrets Manager"]}, {"desc": "GuardDuty·Inspector·Macie 등 여러 보안 서비스의 결과를 중앙에서 통합·관리.", "answer": "AWS Security Hub", "options": ["Amazon API Gateway", "Amazon GuardDuty", "AWS Security Hub", "Amazon ECS / EKS"]}, {"desc": "Athena와 통합하여 보고서·대시보드 생성하는 BI(Business Intelligence) 서비스.", "answer": "Amazon QuickSight", "options": ["Amazon Route 53", "Amazon ElastiCache", "Amazon QuickSight", "Elastic Load Balancing"]}, {"desc": "AI/ML 기반 텍스트 및 이미지 분석 서비스.", "answer": "Amazon Comprehend / Rekognition", "options": ["AWS Cost Management", "Amazon QuickSight", "AWS Trusted Advisor", "Amazon Comprehend / Rekognition"]}, {"desc": "데이터 레이크를 빠르고 쉽게 구축·관리.", "answer": "AWS Lake Formation", "options": ["AWS Lake Formation", "Amazon GuardDuty", "Amazon SQS", "Amazon CloudFront"]}, {"desc": "코드만 업로드하면 인프라(EC2, LB, Auto Scaling 등)를 자동 구성·배포하는 PaaS.", "answer": "AWS Elastic Beanstalk", "options": ["Amazon ElastiCache", "AWS DataSync", "AWS PrivateLink", "AWS Elastic Beanstalk"]}, {"desc": "대규모 배치 컴퓨팅 작업을 위한 완전 관리형 서비스.", "answer": "AWS Batch", "options": ["AWS Backup", "AWS Step Functions", "AWS Batch", "Amazon OpenSearch"]}, {"desc": "AWS 모범 사례 기반으로 다중 계정 AWS 환경(랜딩 존)을 가장 쉽고 빠르게 설정·관리.", "answer": "AWS Control Tower", "options": ["AWS Control Tower", "Amazon Comprehend / Rekognition", "Amazon Aurora", "Amazon Neptune"]}, {"desc": "조직에서 승인된 AWS 서비스·IT 서비스의 중앙 집중식 카탈로그 생성·관리·배포.", "answer": "AWS Service Catalog", "options": ["AWS Snow Family", "AWS Service Catalog", "Amazon CloudWatch", "AWS Cost Management"]}, {"desc": "다음 설명에 해당하는 서비스는? → 'Intelligent Threat Detection'", "answer": "Amazon GuardDuty", "options": ["Amazon Inspector", "Amazon GuardDuty", "AWS Security Hub", "Amazon Macie"]}, {"desc": "다음 설명에 해당하는 서비스는? → 'Discover and Protect Your Sensitive Data'", "answer": "Amazon Macie", "options": ["Amazon GuardDuty", "Amazon Macie", "AWS Security Hub", "Amazon Inspector"]}, {"desc": "다음 설명에 해당하는 서비스는? → 보안 표준(CIS·PCI DSS 등) 준수 여부 자동 점검", "answer": "AWS Security Hub", "options": ["Amazon Macie", "Amazon GuardDuty", "AWS Security Hub", "Amazon Inspector"]}, {"desc": "다음 설명에 해당하는 서비스는? → AZ 종속: 같은 AZ의 EC2에만 연결 가능", "answer": "Amazon EBS", "options": ["Amazon EFS", "Amazon FSx", "AWS Storage Gateway", "Amazon EBS"]}, {"desc": "다음 설명에 해당하는 서비스는? → 리전 서비스: Multi-AZ 저장, 고가용성", "answer": "Amazon EFS", "options": ["Amazon FSx", "AWS Storage Gateway", "Amazon EBS", "Amazon EFS"]}, {"desc": "다음 설명에 해당하는 서비스는? → CDC(Change Data Capture): 변경 사항 실시간 감지·캡처·복제", "answer": "AWS DMS", "options": ["AWS Transfer Family", "AWS Snow Family", "AWS DataSync", "AWS DMS"]}, {"desc": "다음 설명에 해당하는 서비스는? → 데이터 전송 안전성·무결성 자동 검증", "answer": "AWS DataSync", "options": ["AWS Transfer Family", "AWS DMS", "AWS Snow Family", "AWS DataSync"]}, {"desc": "다음 설명에 해당하는 서비스는? → SFTP·FTPS·FTP 프로토콜 지원", "answer": "AWS Transfer Family", "options": ["AWS DataSync", "AWS Snow Family", "AWS DMS", "AWS Transfer Family"]}, {"desc": "다음 설명에 해당하는 서비스는? → Snowball: 페타바이트급 대용량 데이터 오프라인 전송", "answer": "AWS Snow Family", "options": ["AWS Snow Family", "AWS DMS", "AWS Transfer Family", "AWS DataSync"]}, {"desc": "다음 설명에 해당하는 서비스는? → Standard Queue: 무제한 처리량, 순서 미보장, 중복 가능", "answer": "Amazon SQS", "options": ["Amazon API Gateway", "Amazon SNS", "Amazon Kinesis", "Amazon SQS"]}, {"desc": "다음 설명에 해당하는 서비스는? → 구독자: Lambda, SQS, 이메일, HTTP/S, 모바일 앱 등", "answer": "Amazon SNS", "options": ["Amazon API Gateway", "Amazon Kinesis", "Amazon SNS", "Amazon SQS"]}, {"desc": "다음 설명에 해당하는 서비스는? → 수신 API 호출을 Lambda·HTTP 엔드포인트·AWS 서비스로 라우팅", "answer": "Amazon API Gateway", "options": ["Amazon API Gateway", "Amazon Kinesis", "Amazon SNS", "Amazon SQS"]}, {"desc": "다음 설명에 해당하는 서비스는? → Multi-AZ: 장애 시 Standby로 자동 Failover", "answer": "Amazon RDS", "options": ["Amazon Aurora", "Amazon ElastiCache", "Amazon RDS", "Amazon DynamoDB"]}, {"desc": "다음 설명에 해당하는 서비스는? → 3개 AZ에 걸쳐 6개 데이터 복제본 저장", "answer": "Amazon Aurora", "options": ["Amazon RDS", "Amazon Aurora", "Amazon DynamoDB", "Amazon ElastiCache"]}, {"desc": "다음 설명에 해당하는 서비스는? → DAX (DynamoDB Accelerator): 인메모리 캐시, 응답 시간을 마이크로초 단위로 단축", "answer": "Amazon DynamoDB", "options": ["Amazon ElastiCache", "Amazon Aurora", "Amazon RDS", "Amazon DynamoDB"]}, {"desc": "다음 설명에 해당하는 서비스는? → 자동 비밀번호 교체(Rotation) 기능 제공 → 핵심 특징", "answer": "AWS Secrets Manager", "options": ["Amazon Cognito", "AWS KMS", "AWS Certificate Manager", "AWS Secrets Manager"]}, {"desc": "다음 설명에 해당하는 서비스는? → ELB·CloudFront와 통합하여 사용", "answer": "AWS Certificate Manager", "options": ["AWS KMS", "AWS Certificate Manager", "AWS Secrets Manager", "Amazon Cognito"]}, {"desc": "다음 설명에 해당하는 서비스는? → User Pools: 앱 사용자 가입·로그인 기능 (MFA·위험 기반 적응형 인증). 인증 담당", "answer": "Amazon Cognito", "options": ["Amazon Cognito", "AWS Certificate Manager", "AWS KMS", "AWS Secrets Manager"]}, {"desc": "다음 설명에 해당하는 서비스는? → CloudFront 배포에 AWS WAF 연결하여 보안 조치 (자체적으로는 불가)", "answer": "Amazon CloudFront", "options": ["AWS Global Accelerator", "Amazon CloudFront", "Amazon Route 53", "Elastic Load Balancing"]}, {"desc": "다음 설명에 해당하는 서비스는? → CloudFront와의 차이: CloudFront는 콘텐츠 캐시, Global Accelerator는 동적 트래픽(API·게임)의 경로 최적화", "answer": "AWS Global Accelerator", "options": ["Amazon CloudFront", "Elastic Load Balancing", "Amazon Route 53", "AWS Global Accelerator"]}, {"desc": "다음 설명에 해당하는 서비스는? → Data Catalog: 메타데이터 저장 중앙 집중식 리포지토리", "answer": "AWS Glue", "options": ["Amazon Redshift", "AWS Glue", "Amazon Athena", "Amazon EMR"]}, {"desc": "다음 설명에 해당하는 서비스는? → 수천 개 항목 병렬 처리에 매우 적합", "answer": "Amazon EMR", "options": ["Amazon Athena", "Amazon EMR", "AWS Glue", "Amazon Redshift"]}, {"desc": "다음 설명에 해당하는 서비스는? → CSV, JSON, ORC, Avro, Parquet 등 지원", "answer": "Amazon Athena", "options": ["Amazon Athena", "Amazon EMR", "Amazon Redshift", "AWS Glue"]}, {"desc": "다음 설명에 해당하는 서비스는? → S3, RDS 데이터 분석 가능", "answer": "Amazon Redshift", "options": ["Amazon EMR", "Amazon Redshift", "AWS Glue", "Amazon Athena"]}, {"desc": "다음 설명에 해당하는 서비스는? → CIDR: VPC가 사용할 IP 주소 범위 정의 (예: 10.0.0.0/16)", "answer": "Amazon VPC", "options": ["AWS Direct Connect", "Amazon VPC", "AWS Transit Gateway", "AWS PrivateLink"]}, {"desc": "다음 설명에 해당하는 서비스는? → 허브 앤 스포크(Hub-and-Spoke) 모델 구현", "answer": "AWS Transit Gateway", "options": ["AWS Transit Gateway", "AWS Direct Connect", "Amazon VPC", "AWS PrivateLink"]}, {"desc": "다음 설명에 해당하는 서비스는? → 트래픽이 AWS 내부망으로만 한정 → 높은 보안성", "answer": "AWS PrivateLink", "options": ["AWS Direct Connect", "AWS PrivateLink", "AWS Transit Gateway", "Amazon VPC"]}, {"desc": "다음 설명에 해당하는 서비스는? → VPN보다 안정적·빠름·일관된 지연 시간", "answer": "AWS Direct Connect", "options": ["AWS Transit Gateway", "AWS Direct Connect", "AWS PrivateLink", "Amazon VPC"]}, {"desc": "다음 설명에 해당하는 서비스는? → GuardDuty·Detective의 데이터 소스", "answer": "AWS CloudTrail", "options": ["AWS Trusted Advisor", "AWS Config", "Amazon CloudWatch", "AWS CloudTrail"]}, {"desc": "다음 설명에 해당하는 서비스는? → 교차 계정 관측: 여러 계정의 CloudWatch 데이터를 중앙 모니터링 계정에서 쿼리·시각화", "answer": "Amazon CloudWatch", "options": ["AWS Config", "Amazon CloudWatch", "AWS CloudTrail", "AWS Trusted Advisor"]}, {"desc": "다음 설명에 해당하는 서비스는? → 관리형 규칙: 'restricted-ssh', 'encrypted-volumes' 등", "answer": "AWS Config", "options": ["AWS CloudTrail", "AWS Config", "Amazon CloudWatch", "AWS Trusted Advisor"]}, {"desc": "다음 설명에 해당하는 서비스는? → 5개 범주: 비용 최적화, 성능, 보안, 내결함성, 서비스 한도", "answer": "AWS Trusted Advisor", "options": ["AWS Config", "Amazon CloudWatch", "AWS CloudTrail", "AWS Trusted Advisor"]}, {"desc": "다음 설명에 해당하는 서비스는? → 실행 시간: 최대 15분(900초). 15분 초과 작업에 부적합", "answer": "AWS Lambda", "options": ["AWS Batch", "AWS Elastic Beanstalk", "AWS Lambda", "AWS Fargate"]}, {"desc": "다음 설명에 해당하는 서비스는? → 컨테이너(태스크) 단위로 리소스 할당·실행", "answer": "AWS Fargate", "options": ["AWS Batch", "AWS Fargate", "AWS Elastic Beanstalk", "AWS Lambda"]}, {"desc": "다음 설명에 해당하는 서비스는? → 수천 개 작업 큐 관리, EC2/스팟으로 리소스 동적 프로비저닝", "answer": "AWS Batch", "options": ["AWS Elastic Beanstalk", "AWS Batch", "AWS Fargate", "AWS Lambda"]}, {"desc": "다음 설명에 해당하는 서비스는? → 인프라 관리 없이 빠른 배포 환경 필요 시", "answer": "AWS Elastic Beanstalk", "options": ["AWS Batch", "AWS Fargate", "AWS Elastic Beanstalk", "AWS Lambda"]}, {"desc": "다음 설명에 해당하는 서비스는? → 버킷 이름은 전 세계에서 고유", "answer": "Amazon S3", "options": ["Amazon EFS", "Amazon S3", "Amazon S3 Glacier", "Amazon EBS"]}, {"desc": "다음 설명에 해당하는 서비스는? → AZ 종속: 같은 AZ의 EC2에만 연결 가능", "answer": "Amazon EBS", "options": ["Amazon EBS", "Amazon S3 Glacier", "Amazon EFS", "Amazon S3"]}, {"desc": "다음 설명에 해당하는 서비스는? → 리전 서비스: Multi-AZ 저장, 고가용성", "answer": "Amazon EFS", "options": ["Amazon S3", "Amazon EBS", "Amazon S3 Glacier", "Amazon EFS"]}, {"desc": "다음 설명에 해당하는 서비스는? → Glacier Flexible: Expedited 1~5분 / Standard 3~5시간 / Bulk 5~12시간", "answer": "Amazon S3 Glacier", "options": ["Amazon EFS", "Amazon S3 Glacier", "Amazon EBS", "Amazon S3"]}]};
+
+    const NOTES_DATA = {"Amazon EC2": {"title": "Amazon EC2 (Elastic Compute Cloud)", "icon": "🖥️", "desc": "AWS 클라우드의 가상 서버(VM). 가장 기본적인 IaaS. 사용자가 OS부터 모든 것을 직접 설치하고 제어.", "points": ["Elastic Fabric Adapter(EFA): 고성능 네트워크 인터페이스, HPC/ML용", "클러스터 배치 그룹: EC2 인접 배치 → 지연 감소 (한 AZ 내)", "분산 배치 그룹: 인스턴스를 각각 고유한 하드웨어에 저장", "최대 절전 모드: 로드 빠름 ★"], "table": [["온디맨드", "약정 없이 초 단위 과금. 가장 비쌈"], ["스팟", "최대 90% 저렴. AWS가 2분 전 통보 후 회수 가능 → fault-tolerant 작업에 적합"], ["예약", "1년/3년 약정, 최대 72% 할인"], ["전용", "고객 전용 물리 하드웨어. 라이선스/규정 준수 요건 시"], ["컴퓨팅 절약 플랜", "EC2·Fargate·Lambda 등 넓은 범위 적용, 높은 유연성"]], "tableHeader": ["요금제", "설명"], "domain": 2}, "Amazon EC2 Auto Scaling": {"title": "Auto Scaling (오토 스케일링)", "icon": "📈", "desc": "트래픽/지표에 따라 EC2 수를 자동으로 늘리거나(Scale-out) 줄임(Scale-in).", "points": ["예측 확장(Predictive Scaling): ML로 과거 워크로드 분석 → 용량 미리 프로비저닝", "대상 추적(Target Tracking): 특정 지표를 목표 값으로 유지하도록 동적 조정", "웜 풀(Warm Pool): 인스턴스를 최대 절전/중지 상태로 미리 준비"], "domain": 2}, "AWS Lambda": {"title": "AWS Lambda", "icon": "λ", "desc": "서버 없이 이벤트 기반으로 코드 실행. 실행 시간(ms)만큼만 과금.", "points": ["실행 시간: 최대 15분(900초). 15분 초과 작업에 부적합", "메모리: 128MB ~ 10GB (CPU는 메모리에 비례)", "임시 스토리지(/tmp): 최대 10GB", "동시 실행: 기본 한도 1,000개 (요청 시 상향 가능)", "Lambda@Edge: CloudFront 엣지 로케이션에서 Lambda 함수 실행", "SnapStart: Java 런타임 콜드 스타트 지연 시간 대폭 감소"], "domain": 2}, "Amazon S3": {"title": "Amazon S3 (Simple Storage Service)", "icon": "🪣", "desc": "무한대에 가까운 용량의 인터넷 기반 객체(파일) 스토리지. HTTP/HTTPS(URL)로 파일(객체) 단위 액세스.", "points": ["버킷 이름은 전 세계에서 고유", "3개 이상 AZ에 복제, 한 객체 5TB 제한", "복제: 같은 리전(SRR) / 다른 리전(CRR) → 버저닝 활성화 필요", "SSE-S3(AWS키), SSE-KMS(KMS키), SSE-C(고객키, HTTPS 필수)", "정적 호스팅 HTTPS 원할 경우 CloudFront를 앞에 배치", "Transfer Acceleration: 엣지 → AWS 백본으로 50~500% 향상", "온프레미스에서 S3 접근: Direct Connect 또는 VPN + 인터페이스 엔드포인트"], "table": [["S3 Standard", "-", "밀리초 액세스, 3개 이상 AZ 복제"], ["Intelligent-Tiering", "-", "AWS가 자동으로 계층 간 이동"], ["Standard-IA", "30일", "검색 시 추가 요금"], ["One Zone-IA", "30일", "단일 AZ, AZ 장애 시 손실 가능"], ["Glacier Instant", "90일", "밀리초 검색"], ["Glacier Flexible", "90일", "1~5분 / 3~5시간 / 5~12시간"], ["Glacier Deep Archive", "180일", "12시간, 최대 48시간. 가장 저렴"]], "tableHeader": ["클래스", "최소보관", "특징"], "domain": 2}, "Amazon S3 Glacier": {"title": "Amazon S3 Glacier", "icon": "🧊", "desc": "장기 아카이브용 저비용 스토리지. 자주 액세스하지 않는 데이터에 최적.", "points": ["Glacier Flexible: Expedited 1~5분 / Standard 3~5시간 / Bulk 5~12시간", "Glacier Deep Archive: 검색 기본 12시간, 최대 48시간. 가장 저렴", "Object Lock: 거버넌스 모드(특수권한자 잠금 무시) / 규정준수 모드(누구도 삭제 불가)"], "domain": 2}, "Amazon EBS": {"title": "Amazon EBS (Elastic Block Storage)", "icon": "💽", "desc": "EC2 인스턴스에 연결하는 네트워크 연결 가상 하드 디스크 (블록 스토리지).", "points": ["AZ 종속: 같은 AZ의 EC2에만 연결 가능", "1:1 연결: 기본적으로 하나의 볼륨 = 하나의 인스턴스 (예외: io1/io2 다중 연결)", "스냅샷·백업 제공, 자동 확장 기능", "용도: EC2 부팅 볼륨, 지속성이 필요한 단일 서버용 스토리지"], "domain": 2}, "Amazon EFS": {"title": "Amazon EFS (Elastic File System)", "icon": "📁", "desc": "여러 EC2 인스턴스가 동시에 액세스하는 공유 파일 스토리지 (NFS 프로토콜).", "points": ["리전 서비스: Multi-AZ 저장, 고가용성", "자동 확장: 파일 추가 시 용량 자동 증가 (서버리스)", "페타바이트 지원, NFSv4", "Linux 기반 서버 공유 웹 콘텐츠·홈 디렉터리 용도", "EKS, ECS에서는 다중 컨테이너 동시 접근 및 이동성으로 EFS 사용 권장"], "domain": 2}, "Amazon FSx": {"title": "Amazon FSx", "icon": "🗂️", "desc": "특정 상용/오픈소스 파일 시스템을 위한 완전 관리형 서비스.", "table": [["FSx for Windows", "SMB 프로토콜, Active Directory 지원"], ["FSx for Lustre", "HPC·ML·미디어 렌더링용 초고성능 병렬 파일 시스템, S3 직접 연동"], ["FSx for NetApp ONTAP", "SMB·NFS·iSCSI 지원, NetApp SnapMirror 복제"], ["FSx for OpenZFS", "고성능, 스냅샷·복제, NFS 프로토콜"]], "tableHeader": ["유형", "특징"], "domain": 2}, "AWS Storage Gateway": {"title": "AWS Storage Gateway", "icon": "🔌", "desc": "온프레미스와 AWS 클라우드 스토리지를 연결하는 하이브리드 게이트웨이. 코드 수정 불필요.", "table": [["File Gateway", "SMB 또는 NFS / S3를 파일 공유처럼 사용"], ["Volume Gateway", "S3를 iSCSI 볼륨처럼 사용 + 저지연 캐시"], ["Tape Gateway", "S3를 가상 테이프처럼 사용"]], "tableHeader": ["유형", "설명"], "domain": 4}, "Amazon RDS": {"title": "Amazon RDS (Relational Database Service)", "icon": "🗄️", "desc": "MySQL, PostgreSQL, Oracle, SQL Server 등 지원. OS 패치·백업·장애 조치 등 AWS가 처리. SSH 접속 불가.", "points": ["Multi-AZ: 장애 시 Standby로 자동 Failover", "읽기 복제본: 최대 15개, 원하는 AZ/리전에 자유 배치", "백업: 기본 7일~최대 35일. 35일 이상은 S3 또는 AWS Backup", "RDS Proxy: 앱과 DB 사이 관리형 연결 풀러. Failover 시 다운타임 최소화", "암호화: 저장=KMS, 전송=SSL/TLS"], "domain": 2}, "Amazon Aurora": {"title": "Amazon Aurora", "icon": "⚡", "desc": "AWS가 클라우드 최적화로 개발한 고성능 RDB. MySQL·PostgreSQL 완벽 호환.", "points": ["3개 AZ에 걸쳐 6개 데이터 복제본 저장", "스토리지 자동 확장(최대 128TB), 읽기 복제본 최대 15개", "Writer/Reader 엔드포인트 분리", "글로벌 DB: RPO 1초 미만, RTO 1분 미만 → 최고 수준의 DR", "Aurora Serverless: 사용량에 따라 용량 자동 확장/축소"], "domain": 2}, "Amazon DynamoDB": {"title": "Amazon DynamoDB", "icon": "⚡", "desc": "AWS 대표 서버리스 NoSQL Key-Value DB. 어떤 규모에서든 10ms 미만의 빠른 응답 속도.", "points": ["DAX (DynamoDB Accelerator): 인메모리 캐시, 응답 시간을 마이크로초 단위로 단축", "PITR: 최대 35일 동안 지속 백업, 최근 5분 전까지 복원 가능", "항목당 400KB 크기 제한 → 대용량 파일은 S3에 저장 후 URL만 저장", "사용량 예측 가능 → 프로비저닝 모드 / 예측 불가 → 온디맨드 모드"], "domain": 3}, "Amazon ElastiCache": {"title": "Amazon ElastiCache", "icon": "⚡", "desc": "Redis 또는 Memcached를 지원하는 관리형 인메모리 캐시. DB 부하 감소, 응답 속도 향상.", "table": [["Memcached", "고가용성 미지원, 단순 캐싱"], ["Redis", "Multi-AZ, 자동 Failover, 읽기 전용 복제본 지원"]], "tableHeader": ["유형", "특징"], "domain": 3}, "Amazon VPC": {"title": "Amazon VPC (Virtual Private Cloud)", "icon": "🔒", "desc": "사용자 AWS 계정 전용 격리된 가상 사설 네트워크.", "points": ["CIDR: VPC가 사용할 IP 주소 범위 정의 (예: 10.0.0.0/16)", "VPC 피어링 시 CIDR 블록 겹치지 않아야 함", "Public Subnet: 라우팅 테이블에 IGW 경로 있음 → 인터넷 직접 통신", "Private Subnet: IGW 경로 없음 → 인터넷에서 직접 접근 불가", "Gateway Endpoint: S3·DynamoDB 프라이빗 연결 (무료)", "Interface Endpoint(PrivateLink): CloudWatch·SNS·SQS·KMS 등 연결", "NACL: 서브넷 수준, Stateless / Security Group: 인스턴스 수준, Stateful"], "domain": 4}, "Amazon Route 53": {"title": "Amazon Route 53", "icon": "🌐", "desc": "AWS 관리형 DNS 서비스.", "table": [["Latency Based", "가장 낮은 지연 시간의 리전으로 라우팅"], ["Weighted Round Robin", "지정 가중치(비율)에 따라 트래픽 분산"], ["DNS Failover", "헬스 체크로 Primary 비정상 시 Secondary로 자동 전환"], ["Geo Routing", "사용자 지리적 위치(국가·대륙) 기반 라우팅"], ["Geo-proximity", "지리적 위치 기반 + 선택적으로 트래픽 이동 가능"], ["다중값 응답", "여러 정상 엔드포인트 IP를 반환, 클라이언트가 무작위 선택"]], "tableHeader": ["라우팅 정책", "설명"], "domain": 2}, "Amazon CloudFront": {"title": "Amazon CloudFront", "icon": "🌍", "desc": "AWS CDN 서비스. 전 세계 엣지 로케이션에 콘텐츠 캐시. 출처(Origin): 주로 S3, ELB, EC2.", "points": ["CloudFront 배포에 AWS WAF 연결하여 보안 조치 (자체적으로는 불가)", "지리적 제한: 블락 목록·허용 목록 설정 가능", "Lambda@Edge: CloudFront 엣지에서 Lambda 실행", "HTTPS 정적 호스팅: S3 앞에 CloudFront 배치"], "domain": 3}, "AWS Global Accelerator": {"title": "AWS Global Accelerator", "icon": "🚀", "desc": "AWS 글로벌 네트워크를 활용하여 앱까지의 네트워크 경로 최적화. 두 개의 고정 Anycast IP 제공.", "points": ["CloudFront와의 차이: CloudFront는 콘텐츠 캐시, Global Accelerator는 동적 트래픽(API·게임)의 경로 최적화", "AWS Shield Advanced와 연동하여 DDoS 방어", "헬스 체크 프로토콜: TCP, HTTP, HTTPS"], "domain": 2}, "Elastic Load Balancing": {"title": "Elastic Load Balancing (ELB)", "icon": "⚖️", "desc": "들어오는 트래픽을 여러 대상에 자동 분산 → 고가용성·확장성 제공.", "table": [["ALB", "L7, HTTP/HTTPS, URL 경로·호스트 기반 라우팅, 마이크로서비스에 적합"], ["NLB", "L4, TCP/UDP, 초고성능·낮은 지연, AZ별 EIP로 고정 공인 IP 제공"], ["GWLB", "L3, 방화벽·IPS·DPI 보안 어플라이언스 배포용"]], "tableHeader": ["유형", "특징"], "domain": 2}, "Amazon SQS": {"title": "Amazon SQS (Simple Queue Service)", "icon": "📬", "desc": "메시지를 비동기적으로 주고받아 시스템을 분리(Decouple)하는 메시징 큐. Polling 기반.", "points": ["Standard Queue: 무제한 처리량, 순서 미보장, 중복 가능", "FIFO Queue: 순서 보장, 중복 제거, 초당 300개 제한, 정확히 한 번 전송", "가시성 시간 제한: 처리 중 다른 소비자에게 메시지 숨김", "긴 폴링(Long Polling): 빈 큐 시 메시지 올 때까지 대기 → API 호출 횟수 감소", "VPC 외부 위치, Interface Endpoint만 지원"], "domain": 2}, "Amazon SNS": {"title": "Amazon SNS (Simple Notification Service)", "icon": "📢", "desc": "하나의 Topic에 메시지 게시 → 구독자 다수에게 즉시 전달하는 Pub/Sub 서비스. Push 기반.", "points": ["구독자: Lambda, SQS, 이메일, HTTP/S, 모바일 앱 등", "Fan-Out 패턴: SNS 1개 주제 → 여러 SQS 대기열에 동시 전송", "FIFO Topic: 순서 보장 및 중복 제거 지원", "VPC 외부 위치, Interface Endpoint만 지원"], "domain": 2}, "Amazon Kinesis": {"title": "Amazon Kinesis", "icon": "🌊", "desc": "대규모 실시간 데이터 스트리밍 서비스 모음.", "table": [["Kinesis Data Streams", "실시간 데이터 수집·저장·처리. 샤드 분할, 기본 보존 24시간"], ["Kinesis Data Firehose", "실시간 데이터를 S3·Redshift·OpenSearch 등으로 전송. 배치 처리"], ["Kinesis Data Analytics", "실시간 스트리밍 데이터를 SQL 또는 Apache Flink로 분석"]], "tableHeader": ["유형", "설명"], "domain": 3}, "Amazon API Gateway": {"title": "Amazon API Gateway", "icon": "🚪", "desc": "REST API·WebSocket API를 생성·배포·관리하는 완전 관리형 서비스.", "points": ["수신 API 호출을 Lambda·HTTP 엔드포인트·AWS 서비스로 라우팅", "AWS WAF, IAM, Cognito로 액세스 제어", "카나리아 릴리스: 새 버전 API를 일부 트래픽에만 먼저 배포·테스트"], "domain": 3}, "AWS IAM": {"title": "AWS IAM", "icon": "🔑", "desc": "AWS 리소스 액세스를 안전하게 제어. '누가' '무엇을' '어떻게' 할 수 있는지 Policy로 정의.", "points": ["User: AWS와 상호작용하는 사람·앱", "Group: 동일 권한을 공유하는 User 집합", "Role: 임시 자격 증명. EC2·다른 계정 사용자가 Assume하여 권한 획득", "IAM Identity Center(SSO): 한 번의 로그인으로 여러 AWS 계정·앱 액세스", "Organizations + SCP: OU·개별 계정에 최대 권한 경계 설정"], "domain": 1}, "AWS KMS": {"title": "AWS KMS (Key Management Service)", "icon": "🔐", "desc": "관리형 암호화 키 생성·제어 서비스. EBS·S3·RDS 등 대부분 AWS 서비스와 통합.", "table": [["AWS 관리형 키", "AWS", "약 3년 주기 자동 순환 (사용자 제어 불가)"], ["고객 관리형 키(CMK)", "사용자", "1년 주기 자동 순환 활성화/비활성화 가능"], ["가져온 키 자료", "사용자", "자동 순환 미지원, 수동 교체"]], "tableHeader": ["키 유형", "제어 주체", "키 순환"], "domain": 1}, "AWS Secrets Manager": {"title": "AWS Secrets Manager", "icon": "🗝️", "desc": "데이터베이스 자격 증명·API 키 등을 안전하게 저장.", "points": ["자동 비밀번호 교체(Rotation) 기능 제공 → 핵심 특징", "KMS로 암호화", "vs Parameter Store: Secrets Manager는 비밀번호 자동 교체 특화"], "domain": 1}, "AWS WAF / Shield": {"title": "AWS WAF & Shield", "icon": "🛡️", "desc": "WAF: L7 웹 애플리케이션 방화벽. Shield: DDoS 방어.", "points": ["WAF: SQL 인젝션, XSS 등 웹 공격 차단", "WAF: ALB·CloudFront·API Gateway에 Web ACL 연결하여 사용", "Shield Standard: 무료, 기본 보호", "Shield Advanced: 유료, L7 보호·WAF 통합·비용 보호"], "domain": 1}, "Amazon GuardDuty": {"title": "Amazon GuardDuty", "icon": "🔍", "desc": "ML을 사용해 VPC Flow Logs·CloudTrail·DNS 로그를 지속 모니터링하여 악의적 활동 탐지·경고.", "points": ["'Intelligent Threat Detection'", "데이터 소스: VPC Flow Logs, CloudTrail, DNS 로그", "Amazon Detective와 연동하여 근본 원인 조사"], "domain": 1}, "Amazon Macie": {"title": "Amazon Macie", "icon": "🔎", "desc": "S3 데이터를 ML로 스캔하여 민감 데이터(PII: 신용카드 번호·주민번호 등) 식별·분류·모니터링.", "points": ["'Discover and Protect Your Sensitive Data'", "PII(Personally Identifiable Information) 탐지"], "domain": 1}, "Amazon Cognito": {"title": "Amazon Cognito", "icon": "👤", "desc": "웹·모바일 앱을 위한 사용자 인증/인가 서비스.", "points": ["User Pools: 앱 사용자 가입·로그인 기능 (MFA·위험 기반 적응형 인증). 인증 담당", "Identity Pools: 소셜 로그인(Google·Facebook·Apple) 사용자에게 임시 AWS 자격 증명 발급"], "domain": 1}, "Amazon CloudWatch": {"title": "Amazon CloudWatch", "icon": "📊", "desc": "AWS 리소스·앱의 지표(Metrics)·로그(Logs) 수집·추적·경보하는 통합 모니터링 서비스.", "points": ["교차 계정 관측: 여러 계정의 CloudWatch 데이터를 중앙 모니터링 계정에서 쿼리·시각화", "경보(Alarm): 지표 임계값 도달 시 SNS·Auto Scaling 트리거", "Container Insights: EKS/ECS 컨테이너 지표·로그 수집"], "domain": 4}, "AWS CloudTrail": {"title": "AWS CloudTrail", "icon": "📋", "desc": "AWS 계정의 모든 API 호출 이력을 기록하는 감사(Audit) 서비스.", "points": ["GuardDuty·Detective의 데이터 소스", "누가 무엇을 언제 했는지 추적", "로그는 S3에 저장"], "domain": 4}, "AWS CloudFormation": {"title": "AWS CloudFormation", "icon": "📐", "desc": "코드로 AWS 리소스(인프라)를 템플릿으로 정의하고 자동·반복적으로 배포·관리하는 서비스 (IaC).", "points": ["JSON/YAML 템플릿으로 인프라 정의", "스택 단위로 리소스 묶어서 관리", "Control Tower: 모범 사례 기반 다중 계정 환경 설정"], "domain": 4}, "AWS Organizations": {"title": "AWS Organizations", "icon": "🏢", "desc": "여러 AWS 계정을 중앙에서 관리.", "points": ["통합 결제: 모든 계정 사용량을 하나의 청구서로 통합, 볼륨 할인", "SCP(서비스 제어 정책): OU·개별 계정에 최대 권한 경계 설정", "OU(조직 단위): 기능·환경별로 계정을 그룹화하고 정책 상속", "RAM: VPC·Transit Gateway·서브넷 등 리소스를 다른 계정·OU와 공유"], "domain": 4}, "AWS Direct Connect": {"title": "AWS Direct Connect", "icon": "🔗", "desc": "온프레미스 ↔ AWS 간 전용 사설 물리 회선(광케이블) 연결. 인터넷 미경유 → 안정적·빠름.", "points": ["VPN보다 안정적·빠름·일관된 지연 시간", "암호화 없음 (필요 시 VPN과 함께 사용)", "vs Site-to-Site VPN: Direct Connect는 전용선, VPN은 인터넷 기반"], "domain": 4}, "AWS Transit Gateway": {"title": "AWS Transit Gateway", "icon": "🔀", "desc": "수십~수백 개의 VPC와 온프레미스 네트워크를 중앙 허브에 연결하는 라우팅 허브.", "points": ["허브 앤 스포크(Hub-and-Spoke) 모델 구현", "최대 5,000개 VPC 연결 가능", "VPN·Direct Connect와 통합"], "domain": 4}, "Amazon ECS / EKS": {"title": "Amazon ECS / EKS / ECR", "icon": "📦", "desc": "컨테이너 오케스트레이션 및 레지스트리 서비스.", "table": [["ECS", "AWS 고유 컨테이너 오케스트레이션. IAM·VPC·ELB 통합 우수. ECS Anywhere로 온프레미스 확장"], ["EKS", "관리형 Kubernetes. AWS가 컨트롤 플레인 관리. EKS Anywhere로 온프레미스 실행"], ["ECR", "프라이빗 Docker 레지스트리. 자동 CVE 취약점 스캔"]], "tableHeader": ["서비스", "특징"], "domain": 2}, "AWS Fargate": {"title": "AWS Fargate", "icon": "🚢", "desc": "컨테이너를 위한 서버리스 컴퓨팅 엔진. ECS/EKS 사용 시 EC2 워커 노드를 직접 관리할 필요 없음.", "points": ["컨테이너(태스크) 단위로 리소스 할당·실행", "EC2 비용 < Fargate 비용 (서버리스 프리미엄)", "ECS Fargate vs EC2: 관리 편의성 vs 비용 효율성"], "domain": 2}, "AWS Glue": {"title": "AWS Glue", "icon": "🔧", "desc": "완전 서버리스 ETL(추출·변환·로드) 서비스.", "points": ["Data Catalog: 메타데이터 저장 중앙 집중식 리포지토리", "Glue 크롤러: 데이터 소스를 스캔하여 스키마·메타데이터 자동 추론", "Glue DataBrew: 코딩 없이 시각적으로 데이터 정리·정규화", "Glue Studio: ETL 작업을 시각적 GUI로 설계·모니터링"], "domain": 3}, "Amazon Athena": {"title": "Amazon Athena", "icon": "🔍", "desc": "표준 SQL을 사용하여 S3 데이터를 쿼리하는 서버리스 대화형 쿼리 서비스.", "points": ["CSV, JSON, ORC, Avro, Parquet 등 지원", "AWS Glue Data Catalog와 통합", "Amazon QuickSight와 통합하여 대시보드 생성", "Federated Query: Lambda로 DynamoDB·RDS 등 다른 데이터 소스도 쿼리 가능"], "domain": 3}, "Amazon Redshift": {"title": "Amazon Redshift", "icon": "🔴", "desc": "다양한 데이터 소스를 창고처럼 저장하여 분석하는 데이터 웨어하우스.", "points": ["S3, RDS 데이터 분석 가능", "KMS 키를 사용한 서버 측/클라이언트 측 암호화 모두 지원", "Redshift Serverless: 필요할 때만 인스턴스 사용", "재해 복구: 스냅샷 생성 후 다른 리전에 복사하여 새 클러스터 생성"], "domain": 3}, "AWS DataSync": {"title": "AWS DataSync", "icon": "🔄", "desc": "온프레미스 스토리지(NFS/SMB) ↔ AWS 스토리지(S3·EFS 등) 간 온라인 데이터 전송 자동화·가속화.", "points": ["데이터 전송 안전성·무결성 자동 검증", "에이전트가 전송 전 데이터 암호화 (End-to-End 전송)", "vs Storage Gateway: DataSync는 데이터 전송/마이그레이션, Gateway는 하이브리드 액세스"], "domain": 3}, "AWS DMS": {"title": "AWS DMS (Database Migration Service)", "icon": "🚛", "desc": "온프레미스 DB → AWS 또는 AWS 내 DB 간 마이그레이션. 가동 중지 시간 최소화.", "points": ["CDC(Change Data Capture): 변경 사항 실시간 감지·캡처·복제", "지속적인 실시간 복제 지원", "SCT(Schema Conversion Tool): 원본 DB 스키마를 대상 DB 형식으로 자동 변환"], "domain": 4}, "AWS Backup": {"title": "AWS Backup", "icon": "💾", "desc": "다양한 AWS 서비스(EBS, EFS, RDS, DynamoDB 등)의 백업을 중앙에서 자동화·관리.", "points": ["백업 정책으로 여러 리소스의 백업·보존 기간·라이프사이클 한곳에서 관리", "백업은 S3에 저장", "AWS Organizations를 통해 중앙에서 데이터 정책 배포 가능"], "domain": 2}, "AWS Cost Management": {"title": "AWS Cost Management", "icon": "💰", "desc": "AWS 비용 모니터링·분석·최적화 서비스 모음.", "table": [["Cost Explorer", "과거·현재 비용 패턴 분석 및 미래 비용 예측 (최대 12개월)"], ["Budgets", "비용·사용량 예산 설정·모니터링. 임계값 도달 시 자동 알림"], ["Cost Anomaly Detection", "ML로 예상치 못한 급격한 비용 상승을 실시간 감지·알림"], ["Trusted Advisor", "비용 절감·성능 향상·보안 강화 모범 사례 권장 사항 제공"]], "tableHeader": ["서비스", "설명"], "domain": 4}, "Amazon OpenSearch": {"title": "Amazon OpenSearch Service", "icon": "🔎", "desc": "Elasticsearch 후속 버전 기반 완전 관리형 검색·분석 서비스.", "points": ["부분 일치 포함 모든 필드에 대한 빠른 검색 기능 제공", "CloudWatch Logs·Kinesis Firehose에서 수집한 로그 데이터 분석", "Kibana/OpenSearch Dashboards로 시각화"], "domain": 3}, "Amazon EMR": {"title": "Amazon EMR (Elastic MapReduce)", "icon": "⚙️", "desc": "Hadoop·Spark·Hive 등 빅데이터 프레임워크로 대량 데이터를 병렬 분석·처리.", "points": ["수천 개 항목 병렬 처리에 매우 적합", "EMR Serverless: EC2 클러스터 관리 없이 서버리스로 Spark·Hive 작업 실행"], "domain": 3}, "AWS Snow Family": {"title": "AWS Snow Family", "icon": "❄️", "desc": "대용량 데이터를 AWS로 오프라인 전송하거나 엣지 컴퓨팅용 물리 장치.", "points": ["Snowball: 페타바이트급 대용량 데이터 오프라인 전송", "Snowmobile: 엑사바이트급 초대규모 데이터 전송용 컨테이너 트럭", "인터넷 전송보다 빠른 물리적 데이터 이전"], "domain": 4}, "AWS Transfer Family": {"title": "AWS Transfer Family", "icon": "📤", "desc": "SFTP 같은 전통적 파일 전송 방식을 쓰되, 파일은 S3에 저장.", "points": ["SFTP·FTPS·FTP 프로토콜 지원", "기존 파일 전송 워크플로우를 코드 변경 없이 S3·EFS로 연결"], "domain": 3}, "AWS PrivateLink": {"title": "AWS PrivateLink", "icon": "🔒", "desc": "VPC 엔드포인트를 사용하여 AWS 서비스·다른 계정의 서비스에 인터넷 없이 프라이빗 액세스.", "points": ["트래픽이 AWS 내부망으로만 한정 → 높은 보안성", "Interface Endpoint로 구현", "SQS·SNS·CloudWatch·KMS 등 대부분 AWS 서비스 지원"], "domain": 1}, "AWS VPN": {"title": "AWS VPN", "icon": "🛡️", "desc": "온프레미스 ↔ VPC를 인터넷을 통해 IPsec 암호화 터널로 연결.", "table": [["Client VPN", "개인 사용자(재택근무자)가 VPC·온프레미스에 안전하게 접속. 임시 연결"], ["Site-to-Site VPN", "온프레미스 ↔ VPC를 인터넷 기반 IPsec 암호화 터널로 연결. 지속적 연결. 저비용"]], "tableHeader": ["유형", "설명"], "domain": 4}, "Amazon Neptune": {"title": "Amazon Neptune", "icon": "🕸️", "desc": "그래프(Graph) 데이터를 위한 완전 관리형 DB. 소셜 네트워크 관계, 사기 탐지(Fraud Detection) 등 복잡한 연결 패턴에 특화.", "points": ["Neptune Streams: DB의 모든 변경 사항을 실시간 캡처", "그래프 쿼리 언어: Gremlin, SPARQL 지원"], "domain": 3}, "AWS Step Functions": {"title": "AWS Step Functions", "icon": "📊", "desc": "여러 AWS 서비스를 시각적 워크플로우로 조율하는 서버리스 오케스트레이터.", "points": ["Lambda·ECS·DynamoDB·SQS 등 AWS 서비스를 단계별로 연결", "재시도·오류 처리·병렬 실행 내장", "EventBridge + Step Functions으로 복잡한 이벤트 기반 워크플로우 구성"], "domain": 2}, "Amazon SES": {"title": "Amazon SES (Simple Email Service)", "icon": "📧", "desc": "대규모 이메일 발송을 위한 관리형 서비스.", "points": ["마케팅·트랜잭션 이메일 발송", "SMTP 또는 API로 연동", "이메일 반송·수신 거부 관리"], "domain": 3}, "AWS Certificate Manager": {"title": "AWS Certificate Manager (ACM)", "icon": "📜", "desc": "무료 공인 SSL/TLS 인증서 발급·자동 갱신.", "points": ["ELB·CloudFront와 통합하여 사용", "자동 갱신으로 인증서 만료 걱정 없음", "퍼블릭·프라이빗 인증서 모두 지원"], "domain": 1}, "AWS Config": {"title": "AWS Config", "icon": "📋", "desc": "AWS 리소스 구성을 추적·감사하고 시간에 따른 변경 사항 기록.", "points": ["관리형 규칙: 'restricted-ssh', 'encrypted-volumes' 등", "규정 비준수 시 Non-compliant 표시", "변경 사항 이력 추적 및 알림"], "domain": 4}, "AWS Trusted Advisor": {"title": "AWS Trusted Advisor", "icon": "💡", "desc": "AWS 계정 리소스 구성을 스캔하여 비용 절감·성능 향상·보안 강화 모범 사례 권장 사항 제공.", "points": ["5개 범주: 비용 최적화, 성능, 보안, 내결함성, 서비스 한도", "Business/Enterprise 지원 플랜에서 전체 체크 이용 가능"], "domain": 4}, "AWS Security Hub": {"title": "AWS Security Hub", "icon": "🏰", "desc": "GuardDuty·Inspector·Macie 등 여러 보안 서비스의 결과를 중앙에서 통합·관리.", "points": ["보안 표준(CIS·PCI DSS 등) 준수 여부 자동 점검", "보안 결과를 우선순위별로 정리"], "domain": 1}, "Amazon QuickSight": {"title": "Amazon QuickSight", "icon": "📊", "desc": "Athena와 통합하여 보고서·대시보드 생성하는 BI(Business Intelligence) 서비스.", "points": ["S3, RDS, Redshift, Athena 등 다양한 데이터 소스 연결", "ML Insights: 이상 탐지·예측·자동 내러티브 생성"], "domain": 3}, "Amazon Comprehend / Rekognition": {"title": "Amazon Comprehend / Rekognition", "icon": "🤖", "desc": "AI/ML 기반 텍스트 및 이미지 분석 서비스.", "table": [["Comprehend", "텍스트 의미 분석 → 감정·핵심 문구·개체(이름·장소) 추출 (NLP)"], ["Rekognition", "이미지 분석 → 객체·장면·얼굴·유명인·텍스트 식별, 부적절 콘텐츠 감지"], ["Rekognition Video", "저장 영상·실시간 비디오 스트림 분석"]], "tableHeader": ["서비스", "설명"], "domain": 3}, "AWS Lake Formation": {"title": "AWS Lake Formation", "icon": "🏞️", "desc": "데이터 레이크를 빠르고 쉽게 구축·관리.", "points": ["데이터 수집·정제·카탈로깅 자동화", "S3 데이터에 대해 중앙 집중화된 권한 관리 (테이블·열·행 수준 세분화 제어)", "AWS Glue 기능 기반으로 구축"], "domain": 3}, "AWS Elastic Beanstalk": {"title": "AWS Elastic Beanstalk", "icon": "🌱", "desc": "코드만 업로드하면 인프라(EC2, LB, Auto Scaling 등)를 자동 구성·배포하는 PaaS.", "points": ["인프라 관리 없이 빠른 배포 환경 필요 시", "Java, .NET, PHP, Node.js, Python, Ruby, Go 등 지원", "배포 정책: All at once, Rolling, Immutable, Blue/Green"], "domain": 2}, "AWS Batch": {"title": "AWS Batch", "icon": "📦", "desc": "대규모 배치 컴퓨팅 작업을 위한 완전 관리형 서비스.", "points": ["수천 개 작업 큐 관리, EC2/스팟으로 리소스 동적 프로비저닝", "스팟 인스턴스 옵션 제공 → 비용 최적화", "vs Lambda: Batch는 15분 이상 장기 실행 작업, Lambda는 단기 이벤트 처리"], "domain": 3}, "AWS Control Tower": {"title": "AWS Control Tower", "icon": "🗼", "desc": "AWS 모범 사례 기반으로 다중 계정 AWS 환경(랜딩 존)을 가장 쉽고 빠르게 설정·관리.", "points": ["사전 제어: CloudFormation 스택이 리소스 생성·업데이트 전 템플릿 검사", "Organizations·IAM Identity Center·Config 등 자동 설정", "가드레일(Guardrail): 계정 전반에 걸쳐 보안·컴플라이언스 정책 적용"], "domain": 4}, "AWS Service Catalog": {"title": "AWS Service Catalog", "icon": "📚", "desc": "조직에서 승인된 AWS 서비스·IT 서비스의 중앙 집중식 카탈로그 생성·관리·배포.", "points": ["승인된 CloudFormation 템플릿만 배포 가능하도록 제어", "셀프 서비스 포털로 사용자가 승인된 리소스를 직접 프로비저닝"], "domain": 4}};
+
     let quizData = [];
-    let originalData = []; // 전체 데이터를 보관할 변수 추가
+    let originalData = [];
     let currentIdx = 0;
     let selectedOptions = new Set();
-    let filterMode = 'all'; // 현재 필터 상태
+    let filterMode = 'all';
     let currentService = 'All';
+    let isRandomMode = false;
+    let randomOrder = [];
 
-    fetch('1_944.json')
-        .then(response => response.json())
+    // 통계
+    let sessionStats = { correct: 0, wrong: 0, answered: new Set() };
+    // 타이머
+    let timerInterval = null;
+    let timerSeconds = 0;
+
+    // ====== 초기화 ======
+    fetch('1_944_v2.json')
+        .then(r => r.json())
         .then(data => {
             originalData = data;
             quizData = data;
             createServiceButtons();
-            updateWrongCount(); // 오답 개수 표시 업데이트
+            createDomainButtons();
+            updateWrongCount();
             renderList();
             renderQuestion();
+            startTimer();
         });
 
+    // ====== 타이머 ======
+    let timerPaused = false;
+
+    function startTimer() {
+        clearInterval(timerInterval);
+        timerSeconds = 0;
+        timerPaused = false;
+        document.getElementById('pause-btn').textContent = '⏸';
+        timerInterval = setInterval(() => {
+            if (!timerPaused) {
+                timerSeconds++;
+                const m = String(Math.floor(timerSeconds/60)).padStart(2,'0');
+                const s = String(timerSeconds%60).padStart(2,'0');
+                document.getElementById('timer-display').textContent = `${m}:${s}`;
+            }
+        }, 1000);
+    }
+
+    function togglePause() {
+        timerPaused = !timerPaused;
+        const btn = document.getElementById('pause-btn');
+        btn.textContent = timerPaused ? '▶️' : '⏸';
+        // 일시정지 중 문제 가리기
+        const qArea = document.getElementById('question-area');
+        if (timerPaused) {
+            qArea.dataset.origHtml = qArea.innerHTML;
+            qArea.innerHTML = `<div style="text-align:center; padding:60px 20px; color:#94a3b8;">
+                <div style="font-size:3rem; margin-bottom:12px;">⏸</div>
+                <div style="font-size:1.1rem; font-weight:600;">일시정지 중</div>
+                <div style="font-size:0.85rem; margin-top:8px;">▶️ 버튼을 눌러 재개하세요</div>
+            </div>`;
+            document.getElementById('result').style.display = 'none';
+        const nb = document.getElementById('note-banner'); if(nb) nb.style.display = 'none';
+        } else {
+            if (qArea.dataset.origHtml) qArea.innerHTML = qArea.dataset.origHtml;
+        }
+    }
+
+    // ====== 서비스 버튼 생성 ======
     function createServiceButtons() {
         const serviceList = document.getElementById('service-list');
-        // 중복 제거된 서비스 목록 추출
-        const services = [...new Set(originalData.map(q => q.aws_service))].filter(Boolean).sort();
-        
+        // 서비스별 문제 개수 카운트
+        const countMap = {};
+        originalData.forEach(q => {
+            const svc = q.aws_service || 'Unknown';
+            countMap[svc] = (countMap[svc] || 0) + 1;
+        });
+
+        document.getElementById('all-count').textContent = originalData.length;
+
+        const services = Object.keys(countMap).sort();
         services.forEach(svc => {
             const btn = document.createElement('button');
             btn.className = 'service-btn';
-            btn.innerText = svc;
+            btn.id = `svc-${CSS.escape(svc)}`;
+            btn.innerHTML = `<span>${svc}</span><span class="svc-count">${countMap[svc]}</span>`;
             btn.onclick = () => filterByService(svc);
-            btn.id = `svc-${svc}`;
             serviceList.appendChild(btn);
         });
     }
 
-    // 오답 저장 함수
-    function saveToWrongNotes(questionId) {
-        let wrongNotes = JSON.parse(localStorage.getItem('saa_wrong_notes') || "[]");
-        if (!wrongNotes.includes(questionId)) {
-            wrongNotes.push(questionId);
-            localStorage.setItem('saa_wrong_notes', JSON.stringify(wrongNotes));
-            updateWrongCount();
+    // ====== 탭 전환 ======
+    let currentTab = 'service';
+    let currentDomain = 0;
+
+    function switchTab(tab) {
+        currentTab = tab;
+        document.getElementById('tab-panel-service').style.display = tab === 'service' ? 'flex' : 'none';
+        document.getElementById('tab-panel-domain').style.display = tab === 'domain' ? 'flex' : 'none';
+        document.getElementById('svc-search').placeholder = tab === 'service' ? '서비스 검색 (S3, EC2...)' : '도메인 검색...';
+
+        const tabS = document.getElementById('tab-service');
+        const tabD = document.getElementById('tab-domain');
+        if (tab === 'service') {
+            tabS.style.background = '#ff9900'; tabS.style.color = 'white'; tabS.style.border = 'none';
+            tabD.style.background = 'rgba(255,255,255,0.5)'; tabD.style.color = '#64748b'; tabD.style.border = '1px solid rgba(203,213,225,0.7)';
+        } else {
+            tabD.style.background = '#6366f1'; tabD.style.color = 'white'; tabD.style.border = 'none';
+            tabS.style.background = 'rgba(255,255,255,0.5)'; tabS.style.color = '#64748b'; tabS.style.border = '1px solid rgba(203,213,225,0.7)';
         }
     }
 
+    function createDomainButtons() {
+        const domainInfo = [
+            { id: 1, name: 'Domain 1', desc: 'Secure Architectures', color: '#6366f1', pct: '30%' },
+            { id: 2, name: 'Domain 2', desc: 'Resilient Architectures', color: '#10b981', pct: '26%' },
+            { id: 3, name: 'Domain 3', desc: 'High-Performing', color: '#ff9900', pct: '24%' },
+            { id: 4, name: 'Domain 4', desc: 'Cost-Optimized', color: '#f43f5e', pct: '20%' },
+        ];
+        const countMap = {1:0,2:0,3:0,4:0};
+        originalData.forEach(q => { const d = q.domain||2; countMap[d]++; });
+        document.getElementById('domain-all-count').textContent = originalData.length;
+
+        const list = document.getElementById('domain-list');
+        list.innerHTML = '';
+        domainInfo.forEach(d => {
+            const btn = document.createElement('button');
+            btn.className = 'service-btn';
+            btn.id = `domain-btn-${d.id}`;
+            btn.innerHTML = `
+                <span style="display:flex; flex-direction:column; gap:2px;">
+                    <span style="font-weight:700; color:${d.color};">${d.name} <span style="font-size:0.75rem; opacity:0.7;">(${d.pct})</span></span>
+                    <span style="font-size:0.75rem; opacity:0.8;">${d.desc}</span>
+                </span>
+                <span class="svc-count">${countMap[d.id]}</span>`;
+            btn.onclick = () => filterByDomain(d.id);
+            list.appendChild(btn);
+        });
+    }
+
+    function filterByDomain(domainId) {
+        currentDomain = domainId;
+        currentService = 'All';
+
+        // 버튼 활성화 상태
+        document.getElementById('domain-all-btn').classList.toggle('active', domainId === 0);
+        [1,2,3,4].forEach(d => {
+            const btn = document.getElementById(`domain-btn-${d}`);
+            if (btn) btn.classList.toggle('active', d === domainId);
+        });
+
+        if (domainId === 0) {
+            quizData = originalData;
+        } else {
+            quizData = originalData.filter(q => (q.domain||2) === domainId);
+        }
+        if (isRandomMode) randomOrder = shuffleArray([...Array(quizData.length).keys()]);
+        currentIdx = 0;
+        filterMode = 'all';
+        renderList();
+        renderQuestion();
+    }
+
+    // ====== 저장/로드 (localStorage) ======
+    function getWrongNotes() { return JSON.parse(localStorage.getItem('saa_wrong_notes') || '[]'); }
+    function saveWrongNotes(arr) {
+        localStorage.setItem('saa_wrong_notes', JSON.stringify(arr));
+        if (window._fbUser && window.saveToFirebase) window.saveToFirebase({ wrong_notes: arr });
+    }
+    function getBookmarks() { return JSON.parse(localStorage.getItem('saa_bookmarks') || '[]'); }
+    function saveBookmarks(arr) {
+        localStorage.setItem('saa_bookmarks', JSON.stringify(arr));
+        if (window._fbUser && window.saveToFirebase) window.saveToFirebase({ bookmarks: arr });
+    }
+
+    function saveToWrongNotes(questionId) {
+        let wn = getWrongNotes();
+        if (!wn.includes(questionId)) { wn.push(questionId); saveWrongNotes(wn); updateWrongCount(); }
+    }
+    function updateWrongCount() {
+        const wn = getWrongNotes();
+        document.getElementById('wrong-view-btn').innerText = `오답 노트 (${wn.length})`;
+    }
+
+    // ====== 북마크 ======
+    function toggleBookmark() {
+        const q = quizData[currentIdx];
+        if (!q) return;
+        let bm = getBookmarks();
+        const btn = document.getElementById('bookmark-btn');
+        if (bm.includes(q.id)) {
+            bm = bm.filter(id => id !== q.id);
+            btn.classList.remove('bookmarked');
+            showToast('북마크 해제');
+        } else {
+            bm.push(q.id);
+            btn.classList.add('bookmarked');
+            showToast('🔖 북마크 추가');
+        }
+        saveBookmarks(bm);
+        renderList(); // 목록 상태 갱신
+    }
+
+    function updateBookmarkBtn(questionId) {
+        const bm = getBookmarks();
+        const btn = document.getElementById('bookmark-btn');
+        btn.classList.toggle('bookmarked', bm.includes(questionId));
+    }
+
+    // ====== 랜덤 모드 ======
+    function toggleRandom() {
+        isRandomMode = !isRandomMode;
+        const btn = document.getElementById('random-btn');
+        btn.classList.toggle('on', isRandomMode);
+        if (isRandomMode) {
+            randomOrder = shuffleArray([...Array(quizData.length).keys()]);
+            showToast('🔀 랜덤 모드 켜짐');
+        } else {
+            showToast('랜덤 모드 꺼짐');
+        }
+        currentIdx = 0;
+        renderList();
+        renderQuestion();
+    }
+
+    function shuffleArray(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    // 실제 문제 인덱스 (랜덤 시 매핑)
+    function getRealIdx(displayIdx) {
+        return isRandomMode ? randomOrder[displayIdx] : displayIdx;
+    }
+
+    // ====== 필터 ======
     function filterByService(svc) {
         currentService = svc;
-        
-        // 버튼 활성화 상태 변경
         document.querySelectorAll('.service-btn').forEach(b => b.classList.remove('active'));
-        if(svc === 'All') {
-            document.querySelector('.service-btn').classList.add('active');
-        } else {
-            document.getElementById(`svc-${svc}`).classList.add('active');
-        }
-
-        // 데이터 필터링
         if (svc === 'All') {
-            quizData = (filterMode === 'wrong') ? 
-                originalData.filter(q => JSON.parse(localStorage.getItem('saa_wrong_notes') || "[]").includes(q.id)) : 
-                originalData;
+            document.querySelector('.service-scroll-area > .service-btn').classList.add('active');
         } else {
-            quizData = originalData.filter(q => q.aws_service === svc);
-            // 오답노트 모드라면 그 중 오답인 것만
-            if (filterMode === 'wrong') {
-                const wrongIds = JSON.parse(localStorage.getItem('saa_wrong_notes') || "[]");
-                quizData = quizData.filter(q => wrongIds.includes(q.id));
-            }
+            const btn = document.getElementById(`svc-${CSS.escape(svc)}`);
+            if (btn) btn.classList.add('active');
         }
 
-        currentIdx = 0;
-        renderList();
-        renderQuestion();
+        applyFilters();
     }
 
-    // 오답 개수 업데이트
-    function updateWrongCount() {
-        const wrongNotes = JSON.parse(localStorage.getItem('saa_wrong_notes') || "[]");
-        document.getElementById('wrong-view-btn').innerText = `오답 노트 (${wrongNotes.length})`;
-    }
-
-    // 필터 변경 기능
     function setFilter(mode) {
         filterMode = mode;
-        const wrongNotes = JSON.parse(localStorage.getItem('saa_wrong_notes') || "[]");
-        
+        const wn = getWrongNotes();
+        const bm = getBookmarks();
+
         document.getElementById('all-view-btn').classList.toggle('active', mode === 'all');
         document.getElementById('wrong-view-btn').classList.toggle('active', mode === 'wrong');
+        document.getElementById('bookmark-filter-btn').classList.toggle('on', mode === 'bookmark');
 
-        if (mode === 'wrong') {
-            quizData = originalData.filter(q => wrongNotes.includes(q.id));
-            if (quizData.length === 0) {
-                alert("저장된 오답이 없습니다!");
-                setFilter('all');
-                return;
-            }
-        } else {
-            quizData = originalData;
+        applyFilters();
+    }
+
+    function applyFilters() {
+        let base = originalData;
+        // 서비스 필터
+        if (currentService !== 'All') {
+            base = base.filter(q => q.aws_service === currentService);
         }
-        
+        // 모드 필터
+        if (filterMode === 'wrong') {
+            const wn = getWrongNotes();
+            base = base.filter(q => wn.includes(q.id));
+            if (base.length === 0) { showToast('저장된 오답이 없습니다!'); filterMode = 'all'; applyFilters(); return; }
+        } else if (filterMode === 'bookmark') {
+            const bm = getBookmarks();
+            base = base.filter(q => bm.includes(q.id));
+            if (base.length === 0) { showToast('북마크된 문제가 없습니다!'); filterMode = 'all'; applyFilters(); return; }
+        }
+        quizData = base;
+        if (isRandomMode) randomOrder = shuffleArray([...Array(quizData.length).keys()]);
         currentIdx = 0;
         renderList();
         renderQuestion();
     }
 
+    // ====== 목록 렌더 ======
     function renderList() {
         const listContainer = document.getElementById('question-list');
         listContainer.innerHTML = '';
-        
-        quizData.forEach((q, index) => {
-            // 컨테이너 생성
+        const wn = getWrongNotes();
+        const bm = getBookmarks();
+
+        const orderedData = isRandomMode
+            ? randomOrder.map(i => quizData[i])
+            : quizData;
+
+        orderedData.forEach((q, index) => {
             const container = document.createElement('div');
             container.className = 'q-row-container';
 
-            // 문제 이동 버튼
             const btn = document.createElement('button');
             btn.className = 'q-row-btn';
             btn.id = `list-item-${index}`;
-            btn.innerHTML = `<strong>${q.id}</strong>`;
+            
+            const bmIcon = bm.includes(q.id) ? ' 🔖' : '';
+            btn.innerHTML = `<strong>${q.id}</strong>${bmIcon}`;
+            
+            // 정답/오답 표시
+            const history = JSON.parse(localStorage.getItem('saa_answer_history') || '{}');
+            if (history[q.id] === true) btn.classList.add('q-correct');
+            else if (history[q.id] === false) btn.classList.add('q-wrong');
+
             btn.onclick = () => jumpToQuestion(index);
 
-            // 개별 삭제 버튼
             const delBtn = document.createElement('button');
             delBtn.className = 'side-del-btn';
             delBtn.innerText = 'X';
-            
-            // 오답 노트 모드일 때만 X 버튼 표시
-            if (filterMode === 'wrong') {
-                delBtn.style.display = 'block';
-            }
-
-            // 삭제 이벤트 (버튼 클릭 시 문제 이동 안 되게 stopPropagation 추가)
+            if (filterMode === 'wrong' || filterMode === 'bookmark') delBtn.style.display = 'block';
             delBtn.onclick = (e) => {
                 e.stopPropagation();
-                removeSpecificFromWrong(q.id);
+                if (filterMode === 'wrong') removeSpecificFromWrong(q.id);
+                else if (filterMode === 'bookmark') removeBookmark(q.id);
             };
 
             container.appendChild(btn);
             container.appendChild(delBtn);
             listContainer.appendChild(container);
         });
+
+        updateProgress();
     }
 
-    function filterQuestions() {
-        const keyword = document.getElementById('q-search').value.toLowerCase();
-        const listContainer = document.getElementById('question-list');
-        const items = listContainer.getElementsByClassName('q-row-container');
-
-        // 모든 아이템을 일단 숨기고, 검색어에 맞는 것만 보이게 처리
-        Array.from(items).forEach(item => {
-            // 문제 번호 버튼의 텍스트 추출
-            const btnText = item.querySelector('.q-row-btn').innerText.toLowerCase();
-            
-            if (btnText.includes(keyword)) {
-                item.style.display = 'flex'; // 순서대로 다시 배치됨
-            } else {
-                item.style.display = 'none';
-            }
-        });
-
-        // 검색 결과가 있다면 리스트 최상단으로 스크롤 이동
-        listContainer.scrollTop = 0;
+    function removeBookmark(qId) {
+        let bm = getBookmarks().filter(id => id !== qId);
+        saveBookmarks(bm);
+        applyFilters();
+        showToast('북마크 해제됨');
     }
 
+    // ====== 진행률 업데이트 ======
+    function updateProgress() {
+        const total = quizData.length;
+        const pct = total > 0 ? Math.round(((currentIdx + 1) / total) * 100) : 0;
+        document.getElementById('progress-label').textContent = `${currentIdx + 1} / ${total} 문제`;
+        document.getElementById('progress-pct').textContent = `${pct}%`;
+        document.getElementById('progress-fill').style.width = `${pct}%`;
+    }
+
+    // ====== 통계 업데이트 ======
+    function updateStats() {
+        const c = sessionStats.correct, w = sessionStats.wrong, t = c + w;
+        document.getElementById('stat-correct').textContent = c;
+        document.getElementById('stat-wrong').textContent = w;
+        document.getElementById('stat-accuracy').textContent = t > 0 ? Math.round((c/t)*100) + '%' : '-';
+        document.getElementById('stat-total').textContent = t;
+    }
+
+    // ====== 문제 렌더 ======
     function renderQuestion() {
-        const q = quizData[currentIdx];
-        selectedOptions.clear(); // 선택 초기화
-        
-        document.getElementById('result').style.display = 'none';
-        const quizContent = document.getElementById('quiz-content');
-        quizContent.scrollTop = 0;
+        const realIdx = getRealIdx(currentIdx);
+        const q = isRandomMode ? quizData[realIdx] : quizData[currentIdx];
+        if (!q) return;
 
+        selectedOptions.clear();
+        document.getElementById('result').style.display = 'none';
+        document.getElementById('quiz-content').scrollTop = 0;
         document.getElementById('prev-btn').disabled = currentIdx === 0;
         document.getElementById('next-btn').disabled = currentIdx === quizData.length - 1;
+        document.getElementById('next-btn').classList.remove('auto-advance');
 
-        // 사이드바 활성화 표시
+        // 사이드바 활성화
         document.querySelectorAll('.q-row-btn').forEach(btn => btn.classList.remove('active'));
         const activeItem = document.getElementById(`list-item-${currentIdx}`);
-        if(activeItem) {
+        if (activeItem) {
             activeItem.classList.add('active');
             activeItem.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
         }
 
-        // 정답 개수 파악
-        const correctCount = q.answer.split(',').length;
-        const subTitle = correctCount > 1 ? `<span style="color: #ff9900; font-size: 0.9rem;">(정답 ${correctCount}개 선택)</span>` : "";
+        updateProgress();
+        updateBookmarkBtn(q.id);
 
-        // 문제 및 보기 생성
+        const correctCount = q.answer.split(',').length;
+        const subTitle = correctCount > 1 ? `<span style="color:#ff9900;font-size:0.9rem;">(정답 ${correctCount}개 선택)</span>` : '';
+
         let html = `
             <div class="question">${q.id}. ${q.question} ${subTitle}</div>
             <ul class="options">
@@ -505,37 +1408,12 @@
                 `).join('')}
             </ul>
         `;
-        
         document.getElementById('question-area').innerHTML = html;
     }
 
-    // 특정 ID를 오답노트에서 삭제하는 함수
-    function removeSpecificFromWrong(questionId) {
-        let wrongNotes = JSON.parse(localStorage.getItem('saa_wrong_notes') || "[]");
-        wrongNotes = wrongNotes.filter(id => id !== questionId);
-        localStorage.setItem('saa_wrong_notes', JSON.stringify(wrongNotes));
-        
-        updateWrongCount();
-        
-        // 오답 노트 모드라면 즉시 리스트 갱신
-        if (filterMode === 'wrong') {
-            const isCurrentBeingDeleted = quizData[currentIdx].id === questionId;
-            quizData = originalData.filter(q => wrongNotes.includes(q.id));
-            
-            if (quizData.length === 0) {
-                alert("오답 노트를 모두 정복하셨습니다!");
-                setFilter('all');
-            } else {
-                // 현재 보고 있는 문제를 지웠다면 첫 번째 문제로 이동, 아니면 유지
-                if (isCurrentBeingDeleted) currentIdx = 0;
-                renderList();
-                renderQuestion();
-            }
-        }
-    }
-
-    // 다중 선택을 위해 토글 방식으로 변경
+    // ====== 선택 토글 ======
     function toggleOption(el, key) {
+        if (el.classList.contains('disabled')) return;
         if (selectedOptions.has(key)) {
             selectedOptions.delete(key);
             el.classList.remove('selected');
@@ -543,51 +1421,909 @@
             selectedOptions.add(key);
             el.classList.add('selected');
         }
+        // 모의고사 중이면 답 저장
+        if (examMode) {
+            const q = examQuestions[currentIdx];
+            if (q) { examAnswers[q.id] = Array.from(selectedOptions).sort(); updateExamProgress(); }
+        }
     }
 
-    // 기존 checkAnswer 함수 내부에 저장 로직 추가
+    // ====== 정답 확인 ======
     function checkAnswer() {
-        if (selectedOptions.size === 0) return alert("최소 하나 이상의 답안을 선택하십시오.");
-        
-        const q = quizData[currentIdx];
+        if (selectedOptions.size === 0) { showToast('⚠️ 최소 하나 이상 선택하세요'); return; }
+
+        const realIdx = getRealIdx(currentIdx);
+        const q = isRandomMode ? quizData[realIdx] : quizData[currentIdx];
         const resultDiv = document.getElementById('result');
         const correctAnswers = q.answer.split(',').map(s => s.trim()).sort();
         const userAnswers = Array.from(selectedOptions).sort();
-        
         const isCorrect = JSON.stringify(correctAnswers) === JSON.stringify(userAnswers);
-        
-        // 해설 HTML 구성 (링크 포함)
-        let expHtml = q.explanation;
-        if (q.link) {
-            expHtml += `<br><br><a href="${q.link}" target="_blank" class="ref-link">🔗 AWS 공식 문서/해설 참고하기</a>`;
+
+        // 보기 색상 표시
+        document.querySelectorAll('.option-item').forEach(el => {
+            el.classList.add('disabled');
+            const key = el.id.replace('opt-', '');
+            if (correctAnswers.includes(key)) {
+                el.classList.add('answer-correct');
+                el.innerHTML += '<span style="display:block;font-size:0.78rem;margin-top:6px;opacity:0.85;">✅ 정답 보기</span>';
+            } else if (userAnswers.includes(key) && !correctAnswers.includes(key)) {
+                el.classList.add('answer-wrong');
+                el.innerHTML += '<span style="display:block;font-size:0.78rem;margin-top:6px;opacity:0.85;">❌ 잘못 선택한 보기</span>';
+            }
+        });
+
+        // 정답 히스토리 저장
+        const history = JSON.parse(localStorage.getItem('saa_answer_history') || '{}');
+        history[q.id] = isCorrect;
+        localStorage.setItem('saa_answer_history', JSON.stringify(history));
+
+        // 세션 통계 (한 문제당 1번만)
+        if (!sessionStats.answered.has(q.id)) {
+            sessionStats.answered.add(q.id);
+            if (isCorrect) sessionStats.correct++;
+            else sessionStats.wrong++;
         }
-    
+        updateStats();
+
+        let expHtml = q.explanation;
+        if (q.link) expHtml += `<br><br><a href="${q.link}" target="_blank" class="ref-link">🔗 AWS 공식 문서/해설 참고하기</a>`;
+
         resultDiv.style.display = 'block';
         if (isCorrect) {
             resultDiv.className = 'correct';
-            document.getElementById('result-text').innerText = "✅ 정답입니다!";
+            document.getElementById('result-text').innerText = '✅ 정답입니다!';
         } else {
             resultDiv.className = 'wrong';
-            document.getElementById('result-text').innerText = "❌ 오답입니다. (정답: " + q.answer + ")";
-            saveToWrongNotes(q.id); // <--- 오답일 때 로컬스토리지 저장!
+            document.getElementById('result-text').innerText = `❌ 오답입니다. (정답: ${q.answer})`;
+            saveToWrongNotes(q.id);
         }
         document.getElementById('explanation-text').innerHTML = expHtml;
 
-        setTimeout(() => {
-            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }, 100);
+        // 다음 버튼 강조
+        if (currentIdx < quizData.length - 1) {
+            document.getElementById('next-btn').classList.add('auto-advance');
+        }
+
+        // 서비스 노트 배너 표시
+        const noteBanner = document.getElementById('note-banner');
+        const noteBannerSvc = document.getElementById('note-banner-svc');
+        if (NOTES_DATA && NOTES_DATA[q.aws_service]) {
+            noteBannerSvc.textContent = q.aws_service;
+            noteBanner.style.display = 'block';
+        } else {
+            noteBanner.style.display = 'none';
+        }
+
+        renderList(); // 목록 정답/오답 아이콘 갱신
+
+        setTimeout(() => { resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 100);
     }
 
+    // ====== 이동 ======
     function changeQuestion(step) {
-        currentIdx += step;
+        currentIdx = Math.max(0, Math.min(quizData.length - 1, currentIdx + step));
         renderQuestion();
     }
-
     function jumpToQuestion(index) {
         currentIdx = index;
         renderQuestion();
     }
+
+    // ====== 검색 ======
+    function filterQuestions() {
+        const keyword = document.getElementById('q-search').value.toLowerCase();
+        document.querySelectorAll('.q-row-container').forEach(item => {
+            const txt = item.querySelector('.q-row-btn').innerText.toLowerCase();
+            item.style.display = txt.includes(keyword) ? 'flex' : 'none';
+        });
+        document.getElementById('question-list').scrollTop = 0;
+    }
+
+    function filterServiceButtons() {
+        const keyword = document.getElementById('svc-search').value.toLowerCase();
+        if (currentTab === 'service') {
+            const allBtn = document.querySelector('#tab-panel-service > .service-btn');
+            if (allBtn) allBtn.style.display = 'all services'.includes(keyword) ? 'flex' : 'none';
+            document.querySelectorAll('#service-list .service-btn').forEach(btn => {
+                btn.style.display = btn.querySelector('span').innerText.toLowerCase().includes(keyword) ? 'flex' : 'none';
+            });
+        } else {
+            document.getElementById('domain-all-btn').style.display = 'all domains'.includes(keyword) ? 'flex' : 'none';
+            document.querySelectorAll('#domain-list .service-btn').forEach(btn => {
+                btn.style.display = btn.innerText.toLowerCase().includes(keyword) ? 'flex' : 'none';
+            });
+        }
+    }
+
+    // ====== 오답 삭제 ======
+    function removeSpecificFromWrong(questionId) {
+        let wn = getWrongNotes().filter(id => id !== questionId);
+        saveWrongNotes(wn);
+        updateWrongCount();
+        if (filterMode === 'wrong') {
+            const isCurrent = quizData[currentIdx]?.id === questionId;
+            quizData = originalData.filter(q => wn.includes(q.id));
+            if (quizData.length === 0) { showToast('🎉 오답 노트를 모두 정복!'); setFilter('all'); }
+            else { if (isCurrent) currentIdx = 0; renderList(); renderQuestion(); }
+        }
+    }
+
+    // ====== 초기화 ======
+    function confirmReset() {
+        if (confirm('모든 기록(오답, 북마크, 정답 히스토리, 통계)을 초기화할까요?')) {
+            localStorage.removeItem('saa_wrong_notes');
+            localStorage.removeItem('saa_bookmarks');
+            localStorage.removeItem('saa_answer_history');
+            sessionStats = { correct: 0, wrong: 0, answered: new Set() };
+            updateStats();
+            updateWrongCount();
+            setFilter('all');
+            renderList();
+            showToast('🗑 모든 기록이 초기화되었습니다');
+        }
+    }
+
+    // ====== 다크모드 ======
+    function toggleDarkMode() {
+        const isDark = document.body.classList.toggle('dark-mode');
+        const btn = document.getElementById('mode-btn');
+        btn.innerText = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
+        localStorage.setItem('saa_theme', isDark ? 'dark' : 'light');
+    }
+
+    // ====== 토스트 ======
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2200);
+    }
+
+    // ====== 키보드 단축키 ======
+    document.addEventListener('keydown', (e) => {
+        // 입력창 포커스 시 무시
+        if (e.target.tagName === 'INPUT') return;
+
+        if (e.key === 'ArrowLeft') { changeQuestion(-1); e.preventDefault(); }
+        else if (e.key === 'ArrowRight') { changeQuestion(1); e.preventDefault(); }
+        else if (e.key === ' ' || e.key === 'Enter') { checkAnswer(); e.preventDefault(); }
+        else if (['a','b','c','d','e'].includes(e.key.toLowerCase())) {
+            const key = e.key.toUpperCase();
+            const el = document.getElementById(`opt-${key}`);
+            if (el && !el.classList.contains('disabled')) { toggleOption(el, key); e.preventDefault(); }
+        }
+    });
+
+
+    // ====== 모의고사 모드 ======
+    let examMode = false;
+    let examQuestions = [];
+    let examAnswers = {};
+    let examTimerInterval = null;
+    let examSeconds = 130 * 60;
+
+    const DOMAIN_TARGETS = { 1: 20, 2: 17, 3: 16, 4: 12 };
+    const DOMAIN_NAMES = {
+        1: 'Design Secure Architectures',
+        2: 'Design Resilient Architectures',
+        3: 'Design High-Performing Architectures',
+        4: 'Design Cost-Optimized Architectures'
+    };
+    const DOMAIN_COLORS = { 1: '#6366f1', 2: '#10b981', 3: '#ff9900', 4: '#f43f5e' };
+
+    function openExamModal() {
+        document.getElementById('exam-start-panel').style.display = 'block';
+        document.getElementById('exam-result-panel').style.display = 'none';
+        document.getElementById('exam-modal').style.display = 'flex';
+    }
+    function closeExamModal() {
+        document.getElementById('exam-modal').style.display = 'none';
+    }
+
+    function startExam() {
+        // 도메인별 문제 추출
+        const byDomain = {1:[], 2:[], 3:[], 4:[]};
+        originalData.forEach(q => { const d = q.domain || 2; if (byDomain[d]) byDomain[d].push(q); });
+
+        examQuestions = [];
+        for (const [d, target] of Object.entries(DOMAIN_TARGETS)) {
+            const pool = byDomain[d].slice();
+            // 셔플
+            for (let i = pool.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i+1));
+                [pool[i], pool[j]] = [pool[j], pool[i]];
+            }
+            examQuestions.push(...pool.slice(0, target));
+        }
+        // 전체 셔플
+        for (let i = examQuestions.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i+1));
+            [examQuestions[i], examQuestions[j]] = [examQuestions[j], examQuestions[i]];
+        }
+
+        examAnswers = {};
+        examMode = true;
+        examSeconds = 130 * 60;
+
+        closeExamModal();
+
+        // 오버레이 바 표시
+        const bar = document.getElementById('exam-overlay-bar');
+        bar.style.display = 'flex';
+        document.querySelector('.main-wrapper').style.paddingTop = '56px';
+
+        // 타이머 시작
+        clearInterval(examTimerInterval);
+        updateExamTimer();
+        examTimerInterval = setInterval(() => {
+            examSeconds--;
+            updateExamTimer();
+            if (examSeconds <= 0) { clearInterval(examTimerInterval); submitExam(); }
+        }, 1000);
+
+        // 퀴즈 데이터로 덮기
+        quizData = examQuestions;
+        isRandomMode = false;
+        currentIdx = 0;
+        filterMode = 'exam';
+        renderList();
+        renderQuestion();
+        updateExamProgress();
+        showToast('📝 모의고사 시작! 65문제 · 90분');
+    }
+
+    function updateExamTimer() {
+        const m = String(Math.floor(examSeconds/60)).padStart(2,'0');
+        const s = String(examSeconds%60).padStart(2,'0');
+        const el = document.getElementById('exam-timer-display');
+        el.textContent = `⏱ ${m}:${s}`;
+        el.style.color = examSeconds < 600 ? '#f43f5e' : '#ff9900';
+    }
+
+    function updateExamProgress() {
+        const answered = Object.keys(examAnswers).length;
+        document.getElementById('exam-progress-label').textContent = `${answered} / ${examQuestions.length} 답변`;
+    }
+
+
+
+    function submitExam() {
+        if (examMode && Object.keys(examAnswers).length < examQuestions.length) {
+            const unanswered = examQuestions.length - Object.keys(examAnswers).length;
+            if (unanswered > 0 && !confirm(`아직 ${unanswered}문제를 답하지 않았습니다. 제출하시겠습니까?`)) return;
+        }
+        clearInterval(examTimerInterval);
+        endExam();
+    }
+
+    function endExam() {
+        // 채점
+        let totalCorrect = 0;
+        const domainStats = {1:{c:0,t:0}, 2:{c:0,t:0}, 3:{c:0,t:0}, 4:{c:0,t:0}};
+        const wrongIds = [];
+
+        examQuestions.forEach(q => {
+            const d = q.domain || 2;
+            domainStats[d].t++;
+            const userAns = (examAnswers[q.id] || []).sort();
+            const correct = q.answer.split(',').map(s=>s.trim()).sort();
+            const isCorrect = JSON.stringify(userAns) === JSON.stringify(correct);
+            if (isCorrect) { totalCorrect++; domainStats[d].c++; }
+            else wrongIds.push(q.id);
+        });
+
+        // 점수 계산 (각 문제 동일 배점, 1000점 만점)
+        const score = Math.round((totalCorrect / examQuestions.length) * 1000);
+        const passed = score >= 720;
+
+        // 오답 저장
+        const wn = getWrongNotes();
+        wrongIds.forEach(id => { if (!wn.includes(id)) wn.push(id); });
+        saveWrongNotes(wn);
+        updateWrongCount();
+
+        // 결과 표시
+        document.getElementById('exam-score-num').textContent = score;
+        document.getElementById('exam-score-big').style.background = passed ? 'rgba(16,185,129,0.1)' : 'rgba(244,63,94,0.1)';
+        document.getElementById('exam-pass-badge').innerHTML = passed
+            ? '<span style="color:#10b981;">✅ 합격 (PASS)</span>'
+            : '<span style="color:#f43f5e;">❌ 불합격 (FAIL)</span>';
+
+        // 도메인별 분석
+        let breakdownHtml = '';
+        for (let d = 1; d <= 4; d++) {
+            const {c, t} = domainStats[d];
+            const pct = t > 0 ? Math.round((c/t)*100) : 0;
+            breakdownHtml += `
+                <div style="background:#f8fafc; border-radius:10px; padding:12px; border-left:4px solid ${DOMAIN_COLORS[d]};">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                        <span style="font-size:0.82rem; font-weight:600;">Domain ${d}: ${DOMAIN_NAMES[d]}</span>
+                        <span style="font-weight:800; color:${DOMAIN_COLORS[d]};">${c}/${t} (${pct}%)</span>
+                    </div>
+                    <div style="height:6px; background:rgba(0,0,0,0.1); border-radius:10px; overflow:hidden;">
+                        <div style="height:100%; width:${pct}%; background:${DOMAIN_COLORS[d]}; border-radius:10px; transition:width 0.6s;"></div>
+                    </div>
+                </div>`;
+        }
+        document.getElementById('exam-domain-breakdown').innerHTML = breakdownHtml;
+
+        // 오버레이 숨기기
+        document.getElementById('exam-overlay-bar').style.display = 'none';
+        document.querySelector('.main-wrapper').style.paddingTop = '0';
+
+        examMode = false;
+        document.getElementById('exam-start-panel').style.display = 'none';
+        document.getElementById('exam-result-panel').style.display = 'block';
+        document.getElementById('exam-modal').style.display = 'flex';
+
+        // 일반 모드로 복귀
+        quizData = originalData;
+        filterMode = 'all';
+        currentIdx = 0;
+        renderList();
+        renderQuestion();
+    }
+
+    function reviewExam() {
+        closeExamModal();
+        setFilter('wrong');
+        showToast('📖 오답 복습 모드');
+    }
+
+    // ====== 페이지 로드 시 테마 복구 ======
+    window.addEventListener('DOMContentLoaded', () => {
+        if (localStorage.getItem('saa_theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+            const btn = document.getElementById('mode-btn');
+            if (btn) btn.innerText = '☀️ Light Mode';
+        }
+    });
+
+    // ===== 서비스 노트 함수 =====
+    const DOMAIN_INFO_NOTE = {
+        1: {name: "Domain 1: Secure Architectures", color: "#6366f1", bg: "rgba(99,102,241,0.1)"},
+        2: {name: "Domain 2: Resilient Architectures", color: "#10b981", bg: "rgba(16,185,129,0.1)"},
+        3: {name: "Domain 3: High-Performing", color: "#ff9900", bg: "rgba(255,153,0,0.1)"},
+        4: {name: "Domain 4: Cost-Optimized", color: "#f43f5e", bg: "rgba(244,63,94,0.1)"},
+    };
+
+
+    // ===== 학습 모드 전환 =====
+    let currentStudyMode = 'note';
+
+    function setStudyMode(mode) {
+        currentStudyMode = mode;
+        ['note','flash','blank','match'].forEach(m => {
+            const el = document.getElementById('study-mode-' + m);
+            if (el) el.style.display = m === mode ? (m === 'note' ? 'flex' : 'block') : 'none';
+            const btn = document.getElementById('mode-' + m + '-btn');
+            if (btn) {
+                if (m === mode) {
+                    btn.style.background = '#334155'; btn.style.color = 'white'; btn.style.border = 'none';
+                } else {
+                    btn.style.background = 'white'; btn.style.color = '#64748b'; btn.style.border = '1px solid #cbd5e1';
+                }
+            }
+        });
+        if (mode === 'flash') initFlash();
+        else if (mode === 'blank') initBlank();
+        else if (mode === 'match') initMatch();
+    }
+
+    // ===== 플래시카드 =====
+    let flashCards = [];
+    let flashIdx = 0;
+    let flashReview = [];
+    let flashKnew = 0;
+
+    function initFlash() {
+        flashCards = [...QUIZ_DATA.flashcards];
+        // 셔플
+        for (let i = flashCards.length-1; i>0; i--) { const j=Math.floor(Math.random()*(i+1)); [flashCards[i],flashCards[j]]=[flashCards[j],flashCards[i]]; }
+        flashIdx = 0; flashReview = []; flashKnew = 0;
+        renderFlash();
+    }
+
+    function renderFlash() {
+        const cont = document.getElementById('flash-container');
+        const total = flashCards.length;
+        if (flashIdx >= total) {
+            // 결과
+            const pct = Math.round((flashKnew / total) * 100);
+            cont.innerHTML = `
+                <div style="text-align:center; padding:40px 20px;">
+                    <div style="font-size:3rem; margin-bottom:12px;">${pct >= 70 ? '🎉' : '📖'}</div>
+                    <div style="font-size:2rem; font-weight:900; color:${pct>=70?'#10b981':'#f43f5e'};">${pct}%</div>
+                    <div style="color:#64748b; margin:8px 0 20px;">알고 있음 ${flashKnew} / ${total}</div>
+                    <button onclick="initFlash()" style="padding:10px 24px;border-radius:10px;border:none;background:#334155;color:white;cursor:pointer;font-weight:700;margin-right:8px;">🔄 전체 다시</button>
+                    ${flashReview.length > 0 ? `<button onclick="reviewFlash()" style="padding:10px 24px;border-radius:10px;border:none;background:#f43f5e;color:white;cursor:pointer;font-weight:700;">📖 모르는 것만 (${flashReview.length})</button>` : ''}
+                </div>`;
+            return;
+        }
+        const card = flashCards[flashIdx];
+        cont.innerHTML = `
+            <div class="flash-progress-text">${flashIdx + 1} / ${total} &nbsp;·&nbsp; ✅ ${flashKnew} 알고있음 &nbsp; 🔄 ${flashReview.length} 복습필요</div>
+            <div class="flashcard-wrap" onclick="this.querySelector('.flashcard').classList.toggle('flipped')">
+                <div class="flashcard">
+                    <div class="flashcard-front">
+                        <div class="flash-svc-tag">${card.svc || ''}</div>
+                        <div>${card.front}</div>
+                        <div style="font-size:0.72rem;opacity:0.5;margin-top:12px;">클릭하여 뒤집기</div>
+                    </div>
+                    <div class="flashcard-back">
+                        <div class="flash-svc-tag">${card.svc || ''}</div>
+                        <div>${card.back}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="flash-nav">
+                <button class="flash-nav-btn flash-review" onclick="flashAnswer(false)">❌ 몰랐음</button>
+                <button class="flash-nav-btn flash-skip" onclick="flashAnswer(null)">⏭ 넘기기</button>
+                <button class="flash-nav-btn flash-knew" onclick="flashAnswer(true)">✅ 알고 있음</button>
+            </div>`;
+    }
+
+    function flashAnswer(knew) {
+        if (knew === false) flashReview.push(flashCards[flashIdx]);
+        if (knew === true) flashKnew++;
+        flashIdx++;
+        renderFlash();
+    }
+
+    function reviewFlash() {
+        flashCards = [...flashReview];
+        flashIdx = 0; flashReview = []; flashKnew = 0;
+        renderFlash();
+    }
+
+    // ===== 빈칸 채우기 =====
+    let blankAnswered = {};
+
+    function initBlank() {
+        blankAnswered = {};
+        const blanks = [...QUIZ_DATA.blanks];
+        for (let i=blanks.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[blanks[i],blanks[j]]=[blanks[j],blanks[i]];}
+        const cont = document.getElementById('blank-container');
+        let score = 0;
+        cont.innerHTML = `
+            <div class="quiz-score-bar">
+                <span>✏️ 빈칸 채우기 — ${blanks.length}문제</span>
+                <span id="blank-score">정답: 0 / ${blanks.length}</span>
+            </div>
+            ${blanks.map((b, i) => `
+            <div class="blank-card" id="blank-card-${i}">
+                <div class="blank-q">${b.q.replace('___', `<input class="blank-input" id="blank-inp-${i}" placeholder="답 입력" onkeyup="if(event.key==='Enter') checkBlank(${i}, '${b.a.replace(/'/g,"\'")}', '${b.hint.replace(/'/g,"\'")}')">`)}</div>
+                <div style="display:flex;align-items:center;gap:4px;">
+                    <button class="blank-check-btn" onclick="checkBlank(${i}, '${b.a.replace(/'/g,"\'")}', '${b.hint.replace(/'/g,"\'")}')">확인</button>
+                    <span class="blank-hint">💡 힌트: ${b.hint}</span>
+                </div>
+                <div class="blank-answer-reveal" id="blank-reveal-${i}">정답: ${b.a}</div>
+            </div>`).join('')}`;
+    }
+
+    let blankScore = 0;
+    let blankTotal = 0;
+
+    function checkBlank(idx, answer, hint) {
+        if (blankAnswered[idx]) return;
+        blankTotal = QUIZ_DATA.blanks.length;
+        const inp = document.getElementById('blank-inp-' + idx);
+        const reveal = document.getElementById('blank-reveal-' + idx);
+        const userVal = inp.value.trim().toLowerCase();
+        const correctVal = answer.toLowerCase();
+        const isCorrect = userVal === correctVal || correctVal.includes(userVal) && userVal.length > 2;
+        inp.classList.add(isCorrect ? 'correct' : 'wrong');
+        inp.disabled = true;
+        reveal.style.display = 'block';
+        blankAnswered[idx] = true;
+        if (isCorrect) blankScore++;
+        const scoreEl = document.getElementById('blank-score');
+        if (scoreEl) scoreEl.textContent = `정답: ${blankScore} / ${blankTotal}`;
+    }
+
+    // ===== 서비스 매칭 =====
+    let matchScore = 0;
+    let matchAnswered = {};
+
+    function initMatch() {
+        matchScore = 0; matchAnswered = {};
+        const matchings = [...QUIZ_DATA.matchings];
+        for (let i=matchings.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[matchings[i],matchings[j]]=[matchings[j],matchings[i]];}
+        const cont = document.getElementById('match-container');
+        cont.innerHTML = `
+            <div class="quiz-score-bar">
+                <span>🎯 서비스 매칭 — ${matchings.length}문제</span>
+                <span id="match-score-display">정답: 0 / ${matchings.length}</span>
+            </div>
+            ${matchings.map((m, i) => {
+                // 옵션 셔플
+                const opts = [...m.options];
+                for (let x=opts.length-1;x>0;x--){const y=Math.floor(Math.random()*(x+1));[opts[x],opts[y]]=[opts[y],opts[x]];}
+                return `
+                <div class="match-card" id="match-card-${i}">
+                    <div class="match-desc">${m.desc}</div>
+                    <div class="match-options">
+                        ${opts.map(opt => `<button class="match-opt" id="mopt-${i}-${opt.replace(/[^a-zA-Z0-9]/g,'_')}" onclick="checkMatch(${i}, '${opt.replace(/'/g,"\'")}', '${m.answer.replace(/'/g,"\'")}', this)">${opt}</button>`).join('')}
+                    </div>
+                </div>`;
+            }).join('')}`;
+    }
+
+    function checkMatch(idx, selected, answer, btn) {
+        if (matchAnswered[idx]) return;
+        matchAnswered[idx] = true;
+        const isCorrect = selected === answer;
+        btn.classList.add(isCorrect ? 'match-correct' : 'match-wrong');
+        // 정답 표시
+        document.querySelectorAll(`#match-card-${idx} .match-opt`).forEach(b => {
+            b.classList.add('disabled');
+            if (b.textContent.trim() === answer && !isCorrect) b.classList.add('match-show');
+        });
+        if (isCorrect) matchScore++;
+        const scoreEl = document.getElementById('match-score-display');
+        if (scoreEl) scoreEl.textContent = `정답: ${matchScore} / ${QUIZ_DATA.matchings.length}`;
+    }
+
+    function buildNoteHTML(svcKey) {
+        const note = NOTES_DATA[svcKey];
+        if (!note) return '<p style="color:#94a3b8;text-align:center;padding:40px;">이 서비스의 노트가 없습니다.</p>';
+        const domain = note.domain || 2;
+        const di = DOMAIN_INFO_NOTE[domain];
+        let html = `<span class="note-domain-badge" style="background:${di.bg};color:${di.color};">Domain ${domain}: ${di.name}</span><h2>${note.icon || '📌'} ${note.title}</h2><div class="note-desc">${note.desc}</div>`;
+        if (note.points && note.points.length) {
+            html += '<div class="note-section-title">핵심 포인트</div><ul class="note-points">';
+            note.points.forEach(p => { html += `<li>${p}</li>`; });
+            html += '</ul>';
+        }
+        if (note.table && note.table.length) {
+            html += '<div class="note-section-title" style="margin-top:14px;">상세 비교</div><table class="note-table"><thead><tr>';
+            (note.tableHeader || []).forEach(h => { html += `<th>${h}</th>`; });
+            html += '</tr></thead><tbody>';
+            note.table.forEach(row => {
+                html += '<tr>';
+                row.forEach(cell => { html += `<td>${cell}</td>`; });
+                html += '</tr>';
+            });
+            html += '</tbody></table>';
+        }
+        return html;
+    }
+
+    function openNotePopup(svcKey) {
+        document.getElementById('note-popup-body').innerHTML = buildNoteHTML(svcKey);
+        document.getElementById('note-popup').classList.add('open');
+    }
+    function closeNotePopup(e) {
+        if (e.target === document.getElementById('note-popup')) document.getElementById('note-popup').classList.remove('open');
+    }
+    function openNoteFromBanner() {
+        const realIdx = getRealIdx(currentIdx);
+        const q = isRandomMode ? quizData[realIdx] : quizData[currentIdx];
+        if (q) openNotePopup(q.aws_service);
+    }
+
+    let studyListBuilt = false;
+    function openStudyTab() {
+        if (!studyListBuilt) buildStudyList();
+        document.getElementById('study-tab').classList.add('open');
+    }
+    function closeStudyTab(e) {
+        if (e.target === document.getElementById('study-tab')) document.getElementById('study-tab').classList.remove('open');
+    }
+    function buildStudyList() {
+        const list = document.getElementById('study-service-list');
+        list.innerHTML = '';
+        Object.keys(NOTES_DATA).sort().forEach(svc => {
+            const note = NOTES_DATA[svc];
+            const btn = document.createElement('button');
+            btn.className = 'study-svc-btn';
+            btn.dataset.svc = svc;
+            btn.innerHTML = `<span class="svc-icon">${note.icon || '📌'}</span><span>${svc}</span>`;
+            btn.onclick = () => selectStudyService(svc, btn);
+            list.appendChild(btn);
+        });
+        studyListBuilt = true;
+    }
+    let currentStudySvc = '';
+    let miniQuizData = [];
+    let miniQuizIdx = 0;
+    let miniStats = {correct: 0, wrong: 0};
+    let miniAnswered = false;
+    let currentStudyTab = 'note';
+
+    function selectStudyService(svcKey, btn) {
+        document.querySelectorAll('.study-svc-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentStudySvc = svcKey;
+
+        // 해당 서비스 문제 필터
+        miniQuizData = originalData.filter(q => q.aws_service === svcKey);
+        // 셔플
+        for (let i = miniQuizData.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i+1));
+            [miniQuizData[i], miniQuizData[j]] = [miniQuizData[j], miniQuizData[i]];
+        }
+        miniQuizIdx = 0;
+        miniStats = {correct: 0, wrong: 0};
+
+        // 탭바 표시
+        document.getElementById('study-tab-bar').style.display = 'block';
+        const countBadge = document.getElementById('stab-quiz-count');
+        countBadge.textContent = miniQuizData.length + '문제';
+
+        // 노트 탭 먼저
+        switchStudyTab('note');
+    }
+
+    function switchStudyTab(tab) {
+        currentStudyTab = tab;
+        const noteContent = document.getElementById('study-content');
+        const quizContent = document.getElementById('study-quiz-content');
+        const tabNote = document.getElementById('stab-note');
+        const tabQuiz = document.getElementById('stab-quiz');
+
+        if (tab === 'note') {
+            noteContent.style.display = 'block';
+            quizContent.style.display = 'none';
+            tabNote.style.borderBottomColor = '#6366f1';
+            tabNote.style.color = '#4338ca';
+            tabNote.style.fontWeight = '700';
+            tabQuiz.style.borderBottomColor = 'transparent';
+            tabQuiz.style.color = '#94a3b8';
+            tabQuiz.style.fontWeight = '600';
+            noteContent.innerHTML = buildNoteHTML(currentStudySvc);
+            noteContent.scrollTop = 0;
+        } else {
+            noteContent.style.display = 'none';
+            quizContent.style.display = 'block';
+            tabNote.style.borderBottomColor = 'transparent';
+            tabNote.style.color = '#94a3b8';
+            tabNote.style.fontWeight = '600';
+            tabQuiz.style.borderBottomColor = '#ff9900';
+            tabQuiz.style.color = '#b45309';
+            tabQuiz.style.fontWeight = '700';
+            if (miniQuizData.length === 0) {
+                quizContent.innerHTML = '<div style="text-align:center;padding:60px 20px;color:#94a3b8;"><div style="font-size:2.5rem;margin-bottom:12px;">🤔</div><div>이 서비스의 문제가 없습니다.</div></div>';
+            } else {
+                renderMiniQuiz();
+            }
+        }
+    }
+
+    function renderMiniQuiz() {
+        const cont = document.getElementById('study-quiz-content');
+        if (miniQuizIdx >= miniQuizData.length) {
+            // 결과 화면
+            const total = miniStats.correct + miniStats.wrong;
+            const pct = total > 0 ? Math.round((miniStats.correct / total) * 100) : 0;
+            cont.innerHTML = `
+                <div style="padding:24px;">
+                    <div class="mini-score-box">
+                        <div style="font-size:2.5rem;font-weight:900;color:${pct >= 70 ? '#10b981' : '#f43f5e'};">${pct}%</div>
+                        <div style="color:#64748b;margin:6px 0 16px;">${miniStats.correct} / ${total} 정답</div>
+                        <div style="font-size:1.2rem;font-weight:700;margin-bottom:20px;">${pct >= 70 ? '✅ 잘 하고 있어요!' : '📖 노트를 다시 복습해보세요!'}</div>
+                        <button onclick="restartMiniQuiz()" style="padding:10px 24px;border-radius:10px;border:none;background:#334155;color:white;cursor:pointer;font-weight:700;margin-right:8px;">🔄 다시 풀기</button>
+                        <button onclick="switchStudyTab('note')" style="padding:10px 24px;border-radius:10px;border:none;background:#6366f1;color:white;cursor:pointer;font-weight:700;">📖 노트 복습</button>
+                    </div>
+                </div>`;
+            return;
+        }
+
+        const q = miniQuizData[miniQuizIdx];
+        const correctCount = q.answer.split(',').length;
+        const isMulti = correctCount > 1;
+
+        cont.innerHTML = `
+            <div style="padding:20px 24px;">
+                <div class="mini-progress">${miniQuizIdx + 1} / ${miniQuizData.length} &nbsp;·&nbsp; ✅ ${miniStats.correct} &nbsp; ❌ ${miniStats.wrong}</div>
+                <div style="font-size:0.95rem;font-weight:700;line-height:1.6;margin-bottom:16px;color:#0f172a;">
+                    ${q.id}. ${q.question}
+                    ${isMulti ? `<span style="color:#ff9900;font-size:0.8rem;font-weight:600;"> (정답 ${correctCount}개)</span>` : ''}
+                </div>
+                <div id="mini-options">
+                    ${Object.entries(q.options).map(([key, val]) =>
+                        `<button class="mini-opt" id="mopt-${key}" onclick="selectMiniOption('${key}')">${key}. ${val}</button>`
+                    ).join('')}
+                </div>
+                <div id="mini-result" style="display:none;"></div>
+                <div style="margin-top:14px;display:flex;gap:8px;">
+                    <button id="mini-check-btn" onclick="checkMiniAnswer()" style="flex:1;padding:10px;border-radius:10px;border:none;background:#ff9900;color:white;cursor:pointer;font-weight:700;">정답 확인</button>
+                    <button id="mini-next-btn" onclick="nextMiniQuestion()" style="display:none;flex:1;padding:10px;border-radius:10px;border:none;background:#334155;color:white;cursor:pointer;font-weight:700;">다음 문제 →</button>
+                </div>
+            </div>`;
+        miniAnswered = false;
+        window._miniSelected = new Set();
+    }
+
+    function selectMiniOption(key) {
+        if (miniAnswered) return;
+        const el = document.getElementById('mopt-' + key);
+        if (window._miniSelected.has(key)) {
+            window._miniSelected.delete(key);
+            el.style.background = '';
+            el.style.borderColor = '';
+            el.style.color = '';
+        } else {
+            window._miniSelected.add(key);
+            el.style.background = 'rgba(99,102,241,0.12)';
+            el.style.borderColor = '#6366f1';
+            el.style.color = '#4338ca';
+        }
+    }
+
+    function checkMiniAnswer() {
+        if (miniAnswered || !window._miniSelected || window._miniSelected.size === 0) {
+            showToast('⚠️ 최소 하나 이상 선택하세요'); return;
+        }
+        miniAnswered = true;
+        const q = miniQuizData[miniQuizIdx];
+        const correct = q.answer.split(',').map(s => s.trim()).sort();
+        const user = Array.from(window._miniSelected).sort();
+        const isCorrect = JSON.stringify(correct) === JSON.stringify(user);
+
+        if (isCorrect) miniStats.correct++; else miniStats.wrong++;
+
+        // 보기 색상 표시
+        document.querySelectorAll('.mini-opt').forEach(el => {
+            el.classList.add('disabled');
+            const k = el.id.replace('mopt-', '');
+            if (correct.includes(k)) el.classList.add('mini-show-correct');
+            else if (user.includes(k)) el.classList.add('mini-wrong');
+        });
+
+        const resultDiv = document.getElementById('mini-result');
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = `
+            <div style="font-weight:700;font-size:1rem;margin-bottom:8px;">${isCorrect ? '✅ 정답!' : `❌ 오답 (정답: ${q.answer})`}</div>
+            <div class="mini-explanation">${q.explanation || ''}</div>`;
+
+        document.getElementById('mini-check-btn').style.display = 'none';
+        document.getElementById('mini-next-btn').style.display = 'block';
+    }
+
+    function nextMiniQuestion() {
+        miniQuizIdx++;
+        renderMiniQuiz();
+        document.getElementById('study-quiz-content').scrollTop = 0;
+    }
+
+    function restartMiniQuiz() {
+        // 재셔플
+        for (let i = miniQuizData.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i+1));
+            [miniQuizData[i], miniQuizData[j]] = [miniQuizData[j], miniQuizData[i]];
+        }
+        miniQuizIdx = 0;
+        miniStats = {correct: 0, wrong: 0};
+        renderMiniQuiz();
+    }
+    function filterStudyList() {
+        const kw = document.getElementById('study-search').value.toLowerCase();
+        document.querySelectorAll('.study-svc-btn').forEach(btn => {
+            btn.style.display = btn.dataset.svc.toLowerCase().includes(kw) ? 'flex' : 'none';
+        });
+    }
 </script>
+
+
+<!-- ===== 서비스 노트 팝업 ===== -->
+<div class="note-popup" id="note-popup" onclick="closeNotePopup(event)">
+    <div class="note-panel" id="note-panel-content">
+        <button class="note-close" onclick="document.getElementById('note-popup').classList.remove('open')">✕</button>
+        <div id="note-popup-body"></div>
+    </div>
+</div>
+
+<!-- ===== 학습 탭 ===== -->
+<div class="study-tab" id="study-tab" onclick="closeStudyTab(event)">
+    <div class="study-panel" onclick="event.stopPropagation()">
+        <div class="study-header">
+            <h2>📖 AWS 서비스 노트</h2>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <button id="mode-note-btn" onclick="setStudyMode('note')" style="padding:7px 14px;border-radius:8px;border:none;background:#334155;color:white;cursor:pointer;font-weight:700;font-size:0.82rem;">📖 노트</button>
+                <button id="mode-flash-btn" onclick="setStudyMode('flash')" style="padding:7px 14px;border-radius:8px;border:1px solid #cbd5e1;background:white;color:#64748b;cursor:pointer;font-weight:600;font-size:0.82rem;">🃏 플래시카드</button>
+                <button id="mode-blank-btn" onclick="setStudyMode('blank')" style="padding:7px 14px;border-radius:8px;border:1px solid #cbd5e1;background:white;color:#64748b;cursor:pointer;font-weight:600;font-size:0.82rem;">✏️ 빈칸</button>
+                <button id="mode-match-btn" onclick="setStudyMode('match')" style="padding:7px 14px;border-radius:8px;border:1px solid #cbd5e1;background:white;color:#64748b;cursor:pointer;font-weight:600;font-size:0.82rem;">🎯 매칭</button>
+                <button onclick="document.getElementById('study-tab').classList.remove('open')" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:#94a3b8;margin-left:4px;">✕</button>
+            </div>
+        </div>
+        <!-- 노트 모드 -->
+        <div class="study-body" id="study-mode-note">
+            <div class="study-service-list" id="study-service-list"></div>
+            <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+                <!-- 탭 전환 -->
+                <div id="study-tab-bar" style="display:none; padding:12px 24px 0; border-bottom:1px solid rgba(226,232,240,0.8); flex-shrink:0;">
+                    <button id="stab-note" onclick="switchStudyTab('note')" style="padding:8px 18px; border:none; background:none; cursor:pointer; font-weight:700; font-size:0.88rem; border-bottom:3px solid #6366f1; color:#4338ca; margin-right:4px;">📖 노트</button>
+                    <button id="stab-quiz" onclick="switchStudyTab('quiz')" style="padding:8px 18px; border:none; background:none; cursor:pointer; font-weight:600; font-size:0.88rem; border-bottom:3px solid transparent; color:#94a3b8; margin-right:4px;">🧪 퀴즈 <span id="stab-quiz-count" style="font-size:0.75rem; background:rgba(203,213,225,0.5); padding:1px 6px; border-radius:10px;"></span></button>
+                </div>
+                <!-- 노트 내용 -->
+                <div class="study-content" id="study-content" style="display:flex; justify-content:center; align-items:center;">
+                    <div style="text-align:center; padding:60px 20px; color:#94a3b8;">
+                        <div style="font-size:3rem; margin-bottom:12px;">📚</div>
+                        <div style="font-size:1rem; font-weight:600;">왼쪽에서 서비스를 선택하세요</div>
+                    </div>
+                </div>
+                <!-- 퀴즈 내용 -->
+                <div class="study-content" id="study-quiz-content" style="display:none;"></div>
+            </div>
+        </div>
+
+        <!-- 플래시카드 모드 -->
+        <div id="study-mode-flash" style="display:none; flex:1; padding:32px; overflow-y:auto;">
+            <div id="flash-container"></div>
+        </div>
+
+        <!-- 빈칸 채우기 모드 -->
+        <div id="study-mode-blank" style="display:none; flex:1; padding:32px; overflow-y:auto;">
+            <div id="blank-container"></div>
+        </div>
+
+        <!-- 서비스 매칭 모드 -->
+        <div id="study-mode-match" style="display:none; flex:1; padding:32px; overflow-y:auto;">
+            <div id="match-container"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 모의고사 모달 ===== -->
+<div id="exam-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:3000; justify-content:center; align-items:center;">
+    <div id="exam-panel" style="background:#f8fafc; border-radius:20px; padding:36px; width:560px; max-height:90vh; overflow-y:auto; box-shadow:0 24px 60px rgba(0,0,0,0.3);">
+        <!-- 시작 화면 -->
+        <div id="exam-start-panel">
+            <h2 style="margin-top:0; font-size:1.4rem;">📝 SAA-C03 모의고사</h2>
+            <p style="color:#64748b; font-size:0.9rem; line-height:1.7;">
+                실제 시험과 동일한 도메인 비율로 <strong>65문제</strong>를 자동 추출합니다.<br>
+                제한시간 <strong>130분</strong> · 합격 기준 <strong>720점 / 1000점</strong>
+            </p>
+            <div style="background:#f1f5f9; border-radius:12px; padding:16px; margin:16px 0; font-size:0.85rem;">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                    <div style="padding:10px; background:white; border-radius:8px; border-left:4px solid #6366f1;">
+                        <strong>Domain 1</strong><br>Secure Architectures<br><span style="color:#6366f1; font-weight:700;">30% · 20문제</span>
+                    </div>
+                    <div style="padding:10px; background:white; border-radius:8px; border-left:4px solid #10b981;">
+                        <strong>Domain 2</strong><br>Resilient Architectures<br><span style="color:#10b981; font-weight:700;">26% · 17문제</span>
+                    </div>
+                    <div style="padding:10px; background:white; border-radius:8px; border-left:4px solid #ff9900;">
+                        <strong>Domain 3</strong><br>High-Performing<br><span style="color:#ff9900; font-weight:700;">24% · 16문제</span>
+                    </div>
+                    <div style="padding:10px; background:white; border-radius:8px; border-left:4px solid #f43f5e;">
+                        <strong>Domain 4</strong><br>Cost-Optimized<br><span style="color:#f43f5e; font-weight:700;">20% · 12문제</span>
+                    </div>
+                </div>
+            </div>
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button onclick="closeExamModal()" style="flex:1; padding:12px; border-radius:10px; border:1px solid #cbd5e1; background:white; cursor:pointer; font-weight:600; color:#64748b;">취소</button>
+                <button onclick="startExam()" style="flex:2; padding:12px; border-radius:10px; border:none; background:linear-gradient(135deg,#6366f1,#ff9900); color:white; cursor:pointer; font-weight:700; font-size:1rem;">시험 시작!</button>
+            </div>
+        </div>
+
+        <!-- 결과 화면 -->
+        <div id="exam-result-panel" style="display:none;">
+            <h2 style="margin-top:0; font-size:1.4rem;" id="exam-result-title">📊 시험 결과</h2>
+            <div id="exam-score-big" style="text-align:center; padding:24px; margin:16px 0; border-radius:16px; background:#f1f5f9;">
+                <div style="font-size:3rem; font-weight:900;" id="exam-score-num">--</div>
+                <div style="color:#64748b; font-size:0.9rem;" id="exam-score-label">점 / 1000점</div>
+                <div id="exam-pass-badge" style="margin-top:8px; font-size:1.1rem; font-weight:700;"></div>
+            </div>
+            <div id="exam-domain-breakdown" style="display:grid; gap:8px; margin-bottom:20px;"></div>
+            <div style="display:flex; gap:10px;">
+                <button onclick="closeExamModal()" style="flex:1; padding:12px; border-radius:10px; border:1px solid #cbd5e1; background:white; cursor:pointer; font-weight:600; color:#64748b;">닫기</button>
+                <button onclick="reviewExam()" style="flex:1; padding:12px; border-radius:10px; border:none; background:#475569; color:white; cursor:pointer; font-weight:700;">오답 복습</button>
+                <button onclick="startExam()" style="flex:1; padding:12px; border-radius:10px; border:none; background:linear-gradient(135deg,#6366f1,#ff9900); color:white; cursor:pointer; font-weight:700;">재시험</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 모의고사 진행 오버레이 헤더 -->
+<div id="exam-overlay-bar" style="display:none; position:fixed; top:0; left:0; right:0; z-index:2500; background:linear-gradient(135deg,#1e293b,#334155); color:white; padding:10px 30px; display:none; align-items:center; justify-content:space-between; box-shadow:0 4px 20px rgba(0,0,0,0.3);">
+    <span style="font-weight:700; font-size:0.95rem;">📝 모의고사 진행 중</span>
+    <div style="display:flex; align-items:center; gap:20px;">
+        <span id="exam-progress-label" style="font-size:0.85rem; opacity:0.8;"></span>
+        <span id="exam-timer-display" style="font-size:1.1rem; font-weight:800; font-variant-numeric:tabular-nums; color:#ff9900;"></span>
+        <button onclick="submitExam()" style="padding:7px 16px; border-radius:8px; border:none; background:#f43f5e; color:white; cursor:pointer; font-weight:700; font-size:0.85rem;">제출하기</button>
+    </div>
+</div>
 
 </body>
 </html>
