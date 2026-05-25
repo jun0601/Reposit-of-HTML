@@ -1227,7 +1227,8 @@
     "options": {
       "A": "작업 요청을 Amazon SNS 주제로 보냅니다. EC2 인스턴스의 CPU 사용률을 기준으로 확장하는 Auto Scaling 그룹을 구성합니다.",
       "B": "작업 요청을 Amazon SQS 대기열에 저장합니다. 네트워크 입출력량을 기준으로 확장하는 Auto Scaling 그룹을 구성합니다.",
-      "C": "작업 요청을 Amazon SQS 대기열에 저장합니다. 대기열에 쌓인 메시지 수(Backlog per Instance)를 기준으로 확장하는 Auto Scaling 그룹을 구성합니다."
+      "C": "작업 요청을 Amazon SQS 대기열에 저장합니다. 대기열에 쌓인 메시지 수(Backlog per Instance)를 기준으로 확장하는 Auto Scaling 그룹을 구성합니다.",
+      "D": "작업 요청을 Amazon SNS 주제로 보냅니다. SNS 주제의 메시지 수를 기준으로 확장하는 Auto Scaling 그룹을 구성합니다."
     },
     "answer": "C",
     "explanation": "설명:・\n작업 요청을 Amazon SQS에 보관하면 EC2 인스턴스가 준비되는 대로 가져가 처리(Pull 기반)하므로 두 시스템 간의 결합도가 최소화된다.\n・인스턴스를 확장할 때도 CPU나 네트워크 지표 대신 실제 처리해야 할 잔여 작업량인 '대기열 메시지 수(Backlog per Instance)'를 기준으로 오토 스케일링 그룹을 조정하는 것이 반응성과 정확도 측면에서 가장 적합하다.\n\n오답 분석:\n・A, D: Amazon SNS는 메시지를 즉시 푸시(Push)하는 서비스이므로, 백엔드가 바쁠 때 작업을 누적 보관하는 버퍼링 역할을 수행할 수 없다.\n・B: 네트워크 입출력량은 실제 이미지 처리 대기 수량을 대변하지 못하므로 부적절한 확장 지표이다.",
